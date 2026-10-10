@@ -183,7 +183,7 @@ async function main() {
     const holdTag = tagOfFeat(w.MC_TWEAKS.features.find((f) => f.id === "trig-hold"));
     const tempoTag = tagOfFeat(w.MC_TWEAKS.features.find((f) => f.id === "tempo-max"));
     const bootTag = tagOfFeat(w.MC_TWEAKS.features.find((f) => f.id === "boot-anim"));
-    check(tags.join() === "Tested alone,Tested,Experimental,Tested,Tested,Tested," + holdTag + "," + arpTag + "," + tempoTag + "," + bootTag + "," + synTag,
+    check(tags.join() === "Experimental,Tested,Experimental,Tested,Tested,Tested," + holdTag + "," + arpTag + "," + tempoTag + "," + bootTag + "," + synTag,
       "cards tagged as tested or not (Model-TG experimental until tested here): " + tags.join());
     check(doc.getElementById("drop3-wrap").hidden, "Syntakt drop zone hidden until the Syntakt engines are ticked");
     doc.getElementById("feat-syntakt").click();
@@ -285,36 +285,44 @@ async function main() {
       "FR: chord keyboard translated, with its guide link");
     doc.getElementById("feat-chord-keys").click(); await wait(5);
     check(doc.getElementById("feat-chord-keys").checked && !doc.getElementById("feat-model-tg").checked,
-      "Chord Keys selection excludes Model-TG");
+      "Chord Keys can be selected independently");
     doc.getElementById("feat-model-tg").click(); await wait(5);
-    check(!doc.getElementById("feat-chord-keys").checked,
-      "Model-TG selection excludes Chord Keys in the other direction");
+    check(doc.getElementById("feat-chord-keys").checked && doc.getElementById("feat-model-tg").checked,
+      "Model-TG and Chord Keys stay selected together");
+    doc.getElementById("feat-chord-keys").click(); await wait(5);
+    doc.getElementById("feat-chord-keys").click(); await wait(5);
+    check(doc.getElementById("feat-model-tg").checked && doc.getElementById("feat-chord-keys").checked,
+      "Chord Keys also preserves Model-TG when selected second");
     check(/\(inclus avec Model-TG\)/.test(doc.querySelector("label[for=feat-browser-scroll] .ttl").textContent),
       "FR: the tweaks Model-TG holds say « (inclus avec Model-TG) »");
     doc.getElementById("feat-model-tg").click(); await wait(5);
     doc.querySelector('.lang button[data-lang="en"]').click();
     await wait(20);
 
-    // Le retour matériel de Nico ne couvre que Chord Keys seul.
+    // Le retour matériel de Nico reste distinct de la classification expérimentale amont.
     for (const f of w.MC_TWEAKS.features) {
       const cb = doc.getElementById("feat-" + f.id);
       if (cb.checked && !cb.disabled) cb.click();
     }
     box("feat-chord-keys").click(); await wait(5);
-    check(tagOf("feat-chord-keys") === "Tested alone"
-      && /without any other mods/.test(text(doc, "chord-test-scope"))
-      && /No combination with Chord Keys has been tested on a real Model:Cycles/.test(text(doc, "chord-test-scope")),
-      "Chord Keys alone: scoped hardware badge and explicit untested-combinations notice");
+    check(tagOf("feat-chord-keys") === "Experimental"
+      && /Tested by Nico Heuser on his Model:Cycles/.test(text(doc, "chord-test-scope"))
+      && /not every possible combination/.test(text(doc, "chord-test-scope"))
+      && /DIATONIC, JAZZ or TENSION/.test(text(doc, "features"))
+      && /T1–T6 always change the chord temporarily and keep the selected track/.test(text(doc, "features"))
+      && /played chord’s name on screen/.test(text(doc, "features")),
+      "Chord Keys alone: Nico hardware report is scoped; upstream status stays experimental");
     box("feat-usb6").click(); await wait(5);
-    check(tagOf("feat-chord-keys") === "Combination: software only"
+    check(tagOf("feat-chord-keys") === "Experimental"
       && !doc.querySelector("label[for=feat-chord-keys] .tag").classList.contains("ok"),
-      "Chord Keys + USB audio: hardware badge replaced by software-only combination warning");
+      "Chord Keys + USB audio: new revision stays experimental");
     doc.querySelector('.lang button[data-lang="fr"]').click(); await wait(5);
-    check(tagOf("feat-chord-keys") === "Combinaison : logiciel uniquement",
-      "FR: combined Chord Keys badge reports software checks only");
+    check(tagOf("feat-chord-keys") === "Expérimental"
+      && /DIATONIC, JAZZ ou TENSION/.test(text(doc, "features")),
+      "FR: palette names and experimental revision translated");
     box("feat-usb6").click(); await wait(5);
-    check(tagOf("feat-chord-keys") === "Testé seul",
-      "FR: removing the other mod restores standalone test scope");
+    check(tagOf("feat-chord-keys") === "Expérimental",
+      "FR: removing another mod does not restore the previous hardware badge");
     box("feat-chord-keys").click();
     doc.querySelector('.lang button[data-lang="en"]').click(); await wait(5);
 
@@ -556,8 +564,8 @@ async function main() {
       if (!on.some((a, k) => on.slice(k + 1).some((b) => incompatible(a, b))))
         initial.push(on.map((f) => "feat-" + f.id));
     }
-    check(initial.length === 1087 && initial.filter((on) => on.includes("feat-syntakt")).length === 544,
-      "compatible feature selections: 543 without engines, 544 with the first engine combination");
+    check(initial.length === 1151 && initial.filter((on) => on.includes("feat-syntakt")).length === 576,
+      "compatible feature selections: 575 without engines, 576 with the first engine combination");
     async function pickCards(on) {
       // Retirer d'abord les choix précédents ; une case incluse et verrouillée
       // suit son porteur, sans clic artificiel ni changement direct de l'état.
@@ -573,7 +581,7 @@ async function main() {
     }
     function trimCache() {
       // Garder au plus 32 images, dont le choix courant, pour réutiliser les
-      // étapes intermédiaires sans accumuler les 17 407 firmwares vérifiés.
+      // étapes intermédiaires sans accumuler les 18 431 firmwares vérifiés.
       const keys = Object.keys(app.state.cache);
       let excess = keys.length - 32;
       for (const key of keys) {

@@ -143,14 +143,13 @@ FEATURES = [
     },
     {
         "id": "chord-keys",
-        "label": "Accords de gamme sur TRIG 1–16",
-        "desc": "Une piste CHORD, sept modes et une extension par degré. TRIG 1–7 jouent I–VII, "
-                "8–14 une octave plus haut, 15–16 I–II deux octaves plus haut. T1–T6 gardent leurs fonctions. "
-                "Réglages dans FUNC + RETRIG, sauvés avec le pattern.",
+        "label": "Chord Keys",
+        "desc": "TRIG 1–16 jouent les degrés. COLOR choisit DIATONIC, JAZZ ou TENSION ; SHAPE dispose "
+                "et équilibre les voix. T1–T6 transforment toujours l'accord en HARMONY lorsque Keys est actif. "
+                "Le pad tenu reste actif entre les TRIG ; MIDI CHORD envoie les notes de l’accord. "
+                "L’écran affiche l’accord tenu ; les changements HARMONY s’enregistrent en P-locks.",
         "status": "experimental",
-        "hardware_scope": "standalone",  # Nico, 06/10/2026 : seul, aucune combinaison testée sur machine.
         "credit": {"kind": "by", "who": "Modded Cycles", "repo": "18nelli18/Modded-Cycles"},
-        "excludes": ["model-tg"],
         "variants": [{"file": "44-chord-keys", "label": None}],
     },
     {

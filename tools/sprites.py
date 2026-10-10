@@ -22,6 +22,9 @@ le contrôle des caves de build.py ne les voit pas, les octets « old » des éc
 BASE = 0x40000400
 SHARED_MASK = 0x40154ae4        # masque du sprite 32x260 (1040 o), gardé intact
 SHARED_47 = 0x40172220          # masque d'un sprite 47x47 (376 o), gardé intact
+SHARED_35 = 0x4014a660          # masque d'un sprite 35x35 (280 o), gardé intact
+SHARED_33_48 = 0x4016ac78       # masque d'un sprite 33x48 (384 o), gardé intact
+SHARED_34 = 0x4016f8c8          # masque d'un sprite 34x34 (272 o), gardé intact
 
 # va du masque : (taille, va de la constante 32 bits qui le désigne, description[, masque partagé])
 MASKS = {
@@ -51,6 +54,36 @@ MASKS = {
     0x4018fc74: (376, 0x400ac81c, "sprite 47x47", SHARED_47),
     0x401904b4: (376, 0x400ac784, "sprite 47x47", SHARED_47),
     0x40192734: (376, 0x400ac2b2, "sprite 47x47", SHARED_47),
+    # Réserves de Chord Keys Harmony (notes/40) : chaque masque a une seule
+    # référence de constructeur, aucune entrée intérieure et aucun branchement.
+    0x4016aa28: (280, 0x400b1480, "sprite 35x35", SHARED_35),
+    0x401699a8: (280, 0x400b1500, "sprite 35x35", SHARED_35),
+    0x401696a0: (280, 0x400b1540, "sprite 35x35", SHARED_35),
+    0x40166760: (280, 0x400b272e, "sprite 35x35", SHARED_35),
+    0x4016616c: (280, 0x400b2898, "sprite 35x35", SHARED_35),
+    0x40163fb8: (280, 0x400b34c8, "sprite 35x35", SHARED_35),
+    0x401625bc: (280, 0x400b3e2a, "sprite 35x35", SHARED_35),
+    0x40160e6c: (280, 0x400b482e, "sprite 35x35", SHARED_35),
+    0x40160b6c: (280, 0x400b4870, "sprite 35x35", SHARED_35),
+    0x40160864: (280, 0x400b48ac, "sprite 35x35", SHARED_35),
+    0x401601fc: (280, 0x400b4b4a, "sprite 35x35", SHARED_35),
+    0x4015f50c: (280, 0x400b5028, "sprite 35x35", SHARED_35),
+    0x40158744: (384, 0x400b7a5a, "sprite 33x48", SHARED_33_48),
+    # Coexistence Chord Keys / Model-TG (notes/40 §22).
+    0x4014d74c: (280, 0x400bac28, "sprite 35x35", SHARED_35),
+    # Sortie MIDI Chord Keys (notes/40 §25) : égalité des masques, unique
+    # constante de constructeur et absence d'entrée intérieure vérifiées.
+    0x4015b8f8: (280, 0x400b668c, "sprite 35x35", SHARED_35),
+    0x401548b4: (280, 0x400b903a, "sprite 35x35", SHARED_35),
+    0x401542f8: (280, 0x400b91d8, "sprite 35x35", SHARED_35),
+    0x40192ba4: (272, 0x400ac276, "sprite 34x34", SHARED_34),
+    0x4018ff64: (272, 0x400ac7fc, "sprite 34x34", SHARED_34),
+    0x4018b1a8: (272, 0x400ad16e, "sprite 34x34", SHARED_34),
+    0x4018af88: (272, 0x400ad18a, "sprite 34x34", SHARED_34),
+    0x40189618: (272, 0x400ad364, "sprite 34x34", SHARED_34),
+    0x40186238: (272, 0x400ad988, "sprite 34x34", SHARED_34),
+    0x40185308: (272, 0x400adb8c, "sprite 34x34", SHARED_34),
+    0x401835b8: (272, 0x400adedc, "sprite 34x34", SHARED_34),
 }
 
 
