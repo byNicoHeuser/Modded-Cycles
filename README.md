@@ -3,7 +3,7 @@
 # Modded Cycles
 
 This fork tracks upstream **Modded Cycles OS 2.0** (`2594419`) and adds **Chord Keys**: diatonic TRIG chords,
-HARMONY pads and MIDI chord output. Release **2.0-ck.1 is experimental**; the combined firmware awaits hardware testing.
+HARMONY pads and MIDI chord output. Fork release **2.1 is experimental**; the combined firmware awaits hardware testing.
 See the [Chord Keys guide](docs/guide/index.html#chord-keys) and [technical note](notes/42-clavier-accords-diatoniques.md).
 
 **One community OS for the Elektron Model:Cycles, installed from your browser in about 30 seconds.**
@@ -69,7 +69,7 @@ The added machines come after Chord, always in this order: 07 Sampler, 08 SDVtg,
 12 SYSwm, 13 MACRO, 14 ACID.
 
 **Status of the OS itself: Experimental.** Every feature was checked in an emulator that runs the OS's own code,
-and most were tested on a real Model:Cycles on their own, but this exact firmware (version 2.0-ck.1) has not run on a
+and most were tested on a real Model:Cycles on their own, but this exact firmware (version 2.1) has not run on a
 machine yet. The status column above is the status of each feature.
 
 Every feature, every key combination and every limit is written up in [FEATURES.md](FEATURES.md). The guide on the

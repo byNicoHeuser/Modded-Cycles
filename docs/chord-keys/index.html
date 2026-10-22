@@ -3,21 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chord Keys — A chord keyboard for your Model:Cycles</title>
-  <meta name="description" content="Turn the 16 TRIG buttons on your Elektron Model:Cycles into a chord keyboard. Three extension palettes, performance pads and parameter locks. Install with the Modded Cycles flasher.">
+  <title>Chord Keys 2.1 — A chord keyboard for your Model:Cycles</title>
+  <meta name="description" content="Turn the 16 TRIG buttons on your Elektron Model:Cycles into a chord keyboard. Version 2.1 integrates Chord Keys with Modded Cycles OS 2.0. Experimental; hardware testing pending.">
   <meta name="theme-color" content="#f7f8fa">
   <link rel="canonical" href="https://bynicoheuser.github.io/Modded-Cycles/chord-keys/">
   <meta property="og:url" content="https://bynicoheuser.github.io/Modded-Cycles/chord-keys/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Chord Keys — A chord keyboard for your Cycles">
-  <meta property="og:description" content="A chord keyboard inside your Model:Cycles. New palettes, live harmony changes and P-locks. Compatible with the other Cycles mods.">
+  <meta property="og:description" content="A chord keyboard inside your Model:Cycles. Version 2.1 is compatible with Modded Cycles OS 2.0. One firmware with Chord Keys included. Experimental integration.">
   <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../assets/site.css?v=2026-10-22-01">
-  <link rel="stylesheet" href="chord-keys.css?v=2026-10-22-01">
+  <link rel="stylesheet" href="../assets/site.css?v=2026-10-22-02">
+  <link rel="stylesheet" href="chord-keys.css?v=2026-10-22-02">
   <script>var savedLang;try{savedLang=localStorage.getItem('mc-lang')}catch(e){}document.documentElement.lang=savedLang==='fr'||(!savedLang&&/^fr\b/i.test(navigator.language||''))?'fr':'en';</script>
-  <script defer src="../assets/cycles.js?v=2026-10-22-01"></script>
-  <script defer src="../assets/site.js?v=2026-10-22-01"></script>
-  <script defer src="chord-keys.js?v=2026-10-22-01"></script>
+  <script defer src="../assets/cycles.js?v=2026-10-22-02"></script>
+  <script defer src="../assets/site.js?v=2026-10-22-02"></script>
+  <script defer src="chord-keys.js?v=2026-10-22-02"></script>
 </head>
 <body data-page="chord-keys">
   <a class="skip-link" href="#main"><span data-l="en">Skip to content</span><span data-l="fr">Aller au contenu</span></a>
@@ -34,7 +34,7 @@
   <main id="main">
     <section class="ck-wrap hero" aria-labelledby="hero-title">
       <div class="hero-copy">
-        <p class="eyebrow"><span data-l="en">A mod for Elektron Model:Cycles</span><span data-l="fr">Un mod pour Elektron Model:Cycles</span></p>
+        <p class="eyebrow"><span data-l="en">Chord Keys · Version 2.1</span><span data-l="fr">Chord Keys · Version 2.1</span></p>
         <h1 id="hero-title"><span data-l="en">A <em>chord keyboard</em> for your Cycles.</span><span data-l="fr">Un <em>clavier d’accords</em> pour votre Cycles.</span></h1>
         <p class="hero-description"><span data-l="en">Turn your 16 TRIG buttons into a chord keyboard. Play in your chosen scale, change the harmony on the fly, and record it into your patterns.</span><span data-l="fr">Transformez vos 16 boutons TRIG en clavier d’accords. Jouez dans votre gamme, changez l’harmonie à la volée et enregistrez-la dans vos patterns.</span></p>
         <p class="hero-credit"><span data-l="en">Built on <a href="https://github.com/18nelli18/Modded-Cycles">Modded Cycles</a> by <b>18nelli18</b> and contributors.</span><span data-l="fr">Basé sur <a href="https://github.com/18nelli18/Modded-Cycles">Modded Cycles</a> par <b>18nelli18</b> et ses contributeurs.</span></p>
@@ -42,7 +42,7 @@
           <a class="ck-button" href="https://bynicoheuser.github.io/Modded-Cycles/flasher/"><span data-l="en">Install via flasher</span><span data-l="fr">Installer via le flasher</span></a>
           <a class="text-link" href="#guide"><span data-l="en">Read the guide</span><span data-l="fr">Lire le guide</span></a>
         </div>
-        <p class="hero-note"><span data-l="en">Experimental update · Hold modifiers across chords · MIDI chord output</span><span data-l="fr">Mise à jour expérimentale · Modificateurs maintenus entre accords · Sortie MIDI des accords</span></p>
+        <p class="hero-note"><span data-l="en">Compatible with Modded Cycles OS 2.0 · Experimental integration</span><span data-l="fr">Compatible avec Modded Cycles OS 2.0 · Intégration expérimentale</span></p>
       </div>
 
       <figure class="demo" aria-labelledby="demo-caption">
@@ -82,16 +82,16 @@
 
     <section class="ck-wrap new-section" id="new" aria-labelledby="new-title">
       <div class="section-heading"><p class="eyebrow"><span data-l="en">More ways to play</span><span data-l="fr">De nouvelles façons de jouer</span></p><h2 id="new-title"><span data-l="en">Performance tools.</span><span data-l="fr">Pour le jeu.</span></h2></div>
-      <p><span data-l="en"><b>Latest update:</b> hold a T pad across successive TRIGs, send full chords with MIDI CHORD, and use less processing for the same sound. Experimental; hardware testing is pending.</span><span data-l="fr"><b>Dernière mise à jour :</b> maintenez un pad T entre plusieurs TRIG, envoyez les accords avec MIDI CHORD et profitez du même son avec moins de calculs. Expérimental ; essai matériel en attente.</span></p>
+      <p><span data-l="en"><b>New in 2.1:</b> Chord Keys now works with the latest Modded Cycles OS release, <b>2.0</b>. Keep the full OS alongside your TRIG chords, held HARMONY modifiers and MIDI chord output. The combined firmware is experimental; hardware testing is pending.</span><span data-l="fr"><b>Nouveau dans la 2.1 :</b> Chord Keys fonctionne désormais avec la dernière version de Modded Cycles OS, la <b>2.0</b>. Gardez l’OS complet avec vos accords TRIG, modificateurs HARMONY maintenus et accords MIDI. Le firmware combiné est expérimental ; essai matériel en attente.</span></p>
       <div class="features">
-        <article class="feature"><span class="feature-number">01</span><h3><span data-l="en">Bring your other mods.</span><span data-l="fr">Gardez vos autres mods.</span></h3><p><span data-l="en">Combine Chord Keys with the other Cycles mods in the flasher. The new held-modifier and MIDI chord additions await hardware testing.</span><span data-l="fr">Combinez Chord Keys avec les autres mods Cycles du flasher. Les ajouts de maintien des modificateurs et d’accords MIDI attendent un essai matériel.</span></p><div class="feature-foot"><span class="check" aria-hidden="true">✓</span><span data-l="en">Combine them in the flasher</span><span data-l="fr">Combinez-les dans le flasher</span></div></article>
+        <article class="feature"><span class="feature-number">01</span><h3><span data-l="en">Bring your other mods.</span><span data-l="fr">Gardez vos autres mods.</span></h3><p><span data-l="en">Chord Keys is included alongside Model-TG, the Syntakt engines, MACRO, ACID, LFO 2/3/4 and step record. Install them together as one firmware.</span><span data-l="fr">Chord Keys est inclus avec Model-TG, les moteurs Syntakt, MACRO, ACID, LFO 2/3/4 et step record. Installez-les ensemble dans un seul firmware.</span></p><div class="feature-foot"><span class="check" aria-hidden="true">✓</span><span data-l="en">One OS with Chord Keys included</span><span data-l="fr">Un seul OS avec Chord Keys inclus</span></div></article>
         <article class="feature"><span class="feature-number">02</span><h3><span data-l="en">Three harmonic palettes.</span><span data-l="fr">Trois palettes harmoniques.</span></h3><p><span data-l="en">A new approach to 9ths, 11ths and 13ths. Stay in the scale, open up the harmony, or add tension with the COLOR knob.</span><span data-l="fr">Une nouvelle approche des 9es, 11es et 13es. Restez dans la gamme, ouvrez l’harmonie ou ajoutez de la tension avec COLOR.</span></p><div class="palette-chips"><span>DIATONIC</span><span>JAZZ</span><span>TENSION</span></div></article>
         <article class="feature"><span class="feature-number">03</span><h3><span data-l="en">Perform it.</span><span data-l="fr">Jouez.</span></h3><p><span data-l="en">Reach new chord colors directly from the six pads: extensions, suspended chords, major/minor changes and dominants. Keep the changes in your pattern with P-locks.</span><span data-l="fr">Accédez à de nouvelles couleurs depuis les six pads : extensions, accords suspendus, changements majeur/mineur et dominantes. Gardez vos changements dans le pattern grâce aux P-locks.</span></p><div class="feature-foot performance-types">9 · 11 · 13 · SUS7 · PARALLEL · V7</div></article>
       </div>
     </section>
 
     <section class="ck-wrap" id="install" aria-labelledby="install-title">
-      <div class="install-panel"><div><p class="eyebrow">MODDED CYCLES FLASHER</p><h2 id="install-title"><span data-l="en">Make it part of your setup.</span><span data-l="fr">Ajoutez-le à votre machine.</span></h2><p><span data-l="en">Select <b>Chord Keys</b>, add the other mods you want, then follow the flasher to build and install your firmware.</span><span data-l="fr">Cochez <b>Chord Keys</b>, ajoutez les autres mods souhaités, puis suivez le flasher pour créer et installer votre firmware.</span></p><p class="install-detail"><span data-l="en">Use a desktop browser with Web MIDI, such as Chrome or Edge, and your official Model:Cycles OS 1.13 file. The flasher walks you through the rest.</span><span data-l="fr">Utilisez un navigateur de bureau avec Web MIDI, comme Chrome ou Edge, et votre fichier officiel Model:Cycles OS 1.13. Le flasher vous guide pour la suite.</span></p></div><a class="ck-button" href="https://bynicoheuser.github.io/Modded-Cycles/flasher/"><span data-l="en">Open the flasher</span><span data-l="fr">Ouvrir le flasher</span></a></div>
+      <div class="install-panel"><div><p class="eyebrow">MODDED CYCLES FLASHER</p><h2 id="install-title"><span data-l="en">Make it part of your setup.</span><span data-l="fr">Ajoutez-le à votre machine.</span></h2><p><span data-l="en">Open the flasher to install <b>version 2.1 of Nico’s fork</b>: Modded Cycles OS 2.0 with <b>Chord Keys</b> included. Follow the steps to build and install the complete firmware.</span><span data-l="fr">Ouvrez le flasher pour installer <b>la version 2.1 du fork de Nico</b> : Modded Cycles OS 2.0 avec <b>Chord Keys</b> inclus. Suivez les étapes pour créer et installer le firmware complet.</span></p><p class="install-detail"><span data-l="en">Use a desktop browser with Web MIDI, such as Chrome or Edge, and your official Model:Cycles OS 1.13 and Syntakt OS 1.42 (or 1.41) files. You do not need a Syntakt; the flasher reads its engines from the file.</span><span data-l="fr">Utilisez un navigateur de bureau avec Web MIDI, comme Chrome ou Edge, et vos fichiers officiels Model:Cycles OS 1.13 et Syntakt OS 1.42 (ou 1.41). Vous n’avez pas besoin d’un Syntakt ; le flasher lit ses moteurs dans le fichier.</span></p></div><a class="ck-button" href="https://bynicoheuser.github.io/Modded-Cycles/flasher/"><span data-l="en">Open the flasher</span><span data-l="fr">Ouvrir le flasher</span></a></div>
     </section>
 
     <section class="ck-wrap guide-section" id="guide" aria-labelledby="guide-title">

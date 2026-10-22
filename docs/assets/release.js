@@ -3,6 +3,12 @@
  *   { version: "1.1", date: "2026-10-15", changes: [{ en: "…", fr: "…" }] }
  */
 window.MC_RELEASES = [
+  { version: "2.1", date: "2026-10-22", changes: [
+    { en: "Nico’s fork 2.1: Chord Keys is now compatible with Modded Cycles OS 2.0, the latest upstream release. One firmware includes Chord Keys and the full OS: Model-TG, the Syntakt engines, MACRO, ACID, LFO 2/3/4, sample preview, Mod Settings and step record.",
+      fr: "Version 2.1 du fork de Nico : Chord Keys est désormais compatible avec Modded Cycles OS 2.0, la dernière version amont. Un seul firmware inclut Chord Keys et l’OS complet : Model-TG, les moteurs Syntakt, MACRO, ACID, LFO 2/3/4, l’écoute des samples, Mod Settings et step record." },
+    { en: "Play TRIG chords, hold HARMONY pads across successive chords and send MIDI chords. Existing HARMONY locks keep their saved format alongside LFO 2 locks. The website and flasher now show version 2.1; the firmware is unchanged from 2.0-ck.1. This integration remains experimental and awaits hardware testing.",
+      fr: "Jouez les accords TRIG, maintenez les pads HARMONY entre plusieurs accords et envoyez des accords MIDI. Les locks HARMONY gardent leur format sauvegardé avec les locks LFO 2. Le site et le flasher affichent désormais la version 2.1 ; le firmware est inchangé depuis la 2.0-ck.1. Cette intégration reste expérimentale et attend un essai matériel." },
+  ] },
   { version: "2.0-ck.1", date: "2026-10-22", changes: [
     { en: "Chord Keys returns in this fork alongside Modded Cycles OS 2.0: enable Keys in FUNC + RETRIG on a CHORD track, play TRIG chords and use T1–T6 for HARMONY. Held modifiers and MIDI CHORD output are preserved.",
       fr: "Chord Keys revient dans ce fork avec Modded Cycles OS 2.0 : activez Keys dans FUNC + RETRIG sur une piste CHORD, jouez les accords TRIG et utilisez T1–T6 pour HARMONY. Les modificateurs tenus et la sortie MIDI CHORD sont conservés." },

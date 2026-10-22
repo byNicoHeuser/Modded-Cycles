@@ -20,7 +20,7 @@ python3 tools/build.py -i firmware/model-cycles_OS1.13.syx --syntakt firmware/Sy
 
 The build applies each tweak's writes to section 3 (the MAIN OS) of your file, checking every `old` byte, appends the
 payloads (Model-TG's code, the Syntakt engines extracted from your Syntakt file, MACRO and ACID), repacks the section
-(aPLib) and re-signs the container (HMAC). It prints the SHA-256 of the patched MAIN OS. For this fork, version 2.0-ck.1, it must be:
+(aPLib) and re-signs the container (HMAC). It prints the SHA-256 of the patched MAIN OS. For this fork, version 2.1, it must be:
 
 ```
 dd8c1a6e9ce82e1721c780dcae9d837a55dcbb60a7dc55b77458998c8f6a0a6d
@@ -100,7 +100,7 @@ The exact runs each proof supports are in its docstring (`python3 tools/emu/test
 
 Both need the official `model-samples_OS1.13.syx` as well.
 
-## Chord Keys on OS 2.0 (fork 2.0-ck.1)
+## Chord Keys on OS 2.0 (fork 2.1)
 
 The single-OS build includes Chord Keys (61) and step record's native note-writer integration.
 HARMONY keeps saved ID33 while moving to lock slot27, outside LFO 2's slots28–32.

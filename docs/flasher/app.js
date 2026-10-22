@@ -26,7 +26,7 @@ const ELEKTRON_ST_DL = "https://www.elektron.se/support-downloads/syntakt";
 // (tools/check_overlaps.py proves that tweaks built together never write the same bytes, except the
 // same whole write or a mod applied on top of another through "requires").
 const REF_MAINOS = {
-  // Modded Cycles OS 2.0-ck.1: the tweaks of os.json, built by tools/build.py --os
+  // Modded Cycles OS 2.1: the tweaks of os.json, built by tools/build.py --os
   "model-tg-st+sample-preview-st+trig-hold+arp+step-rec+chord-keys+tempo-max+boot-anim+multiline-browser+level-pan-values+trigless-dim+midi-live-both+mod-settings+lfo-plus+syntakt-tg-sd-cp-toy-bits-swarm-macro-acid": "dd8c1a6e9ce82e1721c780dcae9d837a55dcbb60a7dc55b77458998c8f6a0a6d",
 };
 const REF_MODS = {
@@ -101,7 +101,7 @@ const CAT_ICON = {
 const T = {
   en: {
     title: "Model:Cycles Flasher",
-    tagline: "Install the Modded Cycles OS on your Elektron Model:Cycles or Model:Samples, right from your browser.",
+    tagline: "Install Nico’s fork 2.1: Chord Keys with Modded Cycles OS 2.0, the latest upstream release, on your Model:Cycles or Model:Samples. Experimental integration; hardware testing pending.",
     s1: "What do you want to install?",
     tab_mods: "Modded Cycles OS",
     os_lede: "One firmware with the {n} features below, built in your browser from your own official files. Nothing to pick: everyone runs the same OS, so projects, tips and bug reports mean the same thing for everyone.",
@@ -333,7 +333,7 @@ const T = {
   },
   fr: {
     title: "Flasher Model:Cycles",
-    tagline: "Installez le Modded Cycles OS sur votre Elektron Model:Cycles ou Model:Samples, depuis votre navigateur.",
+    tagline: "Installez la version 2.1 du fork de Nico : Chord Keys avec Modded Cycles OS 2.0, la dernière version amont, sur votre Model:Cycles ou Model:Samples. Intégration expérimentale ; essai matériel en attente.",
     s1: "Que voulez-vous installer ?",
     tab_mods: "Modded Cycles OS",
     os_lede: "Un seul firmware avec les {n} fonctions ci-dessous, construit dans votre navigateur à partir de vos propres fichiers officiels. Rien à choisir : tout le monde a le même OS, donc les projets, les astuces et les rapports de bug veulent dire la même chose pour tous.",
@@ -593,7 +593,7 @@ const FEAT = {
     "trig-preview": { label: "Trig preview",
       short: "Sequencer stopped or paused: hold a step and press PAGE to hear it, with its note, length and p-locks.",
       desc: "With the sequencer stopped or paused (after a MIDI Stop too), hold a step and press PAGE: the step plays with its own note, length and p-locks. By drumkilla, part of Model-TG, with this project's fix for the paused sequencer." },
-    "chord-keys": { short: "TRIG chords, HARMONY pads and MIDI chords on the CHORD track. Experimental OS 2.0 integration.", label: "Chord Keys",
+    "chord-keys": { short: "TRIG chords, HARMONY pads and MIDI chords on the CHORD track. Fork 2.1; compatible with Modded Cycles OS 2.0. Experimental.", label: "Chord Keys",
       desc: "Play chords on TRIG 1–16 and see the played chord’s name on screen. COLOR chooses DIATONIC, JAZZ or TENSION; SHAPE arranges and balances the voices. With Keys ON, T1–T6 always change the chord temporarily and keep the selected track. With a TRIG held, each new available pad press gives the whole changed chord a fresh attack; release keeps that chord sounding. With no TRIG held, hold T to prepare the next TRIG without changing the previous tail. Keep T held to apply its change to every new TRIG; after releasing T, later TRIGs return to their saved extension. Record these attacks and HARMONY changes. Choose MIDI CHORD in FUNC + RETRIG to play external instruments with the chord notes, or ROOT for the original single-note output. Set each degree’s usual extension in FUNC + RETRIG. Improved controls also apply to existing patterns.",
       note: "Combines with every other Cycles mod, including Model-TG and the Syntakt engines. On CHORD with Keys ON, Chord Keys chooses the keyboard’s Root and Scale; Model-TG’s Scale Lock remains available elsewhere. Existing HARMONY locks still load. Nico tested version 1.2 on hardware; the new held-modifier and MIDI chord additions await hardware testing." },
     "trig-hold": { label: "Easier trig removal",
@@ -668,7 +668,7 @@ const FEAT = {
     "trig-preview": { label: "Écoute d'un pas",
       short: "Séquenceur à l'arrêt ou en pause : maintenez un pas et appuyez sur PAGE pour l'entendre, avec sa note, sa longueur et ses p-locks.",
       desc: "Séquenceur à l'arrêt ou en pause (après un Stop MIDI aussi), maintenez un pas et appuyez sur PAGE : le pas joue avec sa note, sa longueur et ses p-locks. Par drumkilla, inclus dans Model-TG, avec le correctif de ce projet pour le séquenceur en pause." },
-    "chord-keys": { short: "Accords TRIG, pads HARMONY et accords MIDI sur CHORD. Intégration OS 2.0 expérimentale.", label: "Chord Keys",
+    "chord-keys": { short: "Accords TRIG, pads HARMONY et accords MIDI sur CHORD. Fork 2.1 ; compatible avec Modded Cycles OS 2.0. Expérimental.", label: "Chord Keys",
       desc: "Jouez les accords sur TRIG 1–16 et voyez le nom de l’accord joué à l’écran. COLOR choisit DIATONIC, JAZZ ou TENSION ; SHAPE dispose et équilibre les voix. Avec Keys ON, T1–T6 changent toujours l’accord temporairement en gardant la piste sélectionnée. Avec un TRIG tenu, chaque nouvel appui disponible donne une nouvelle attaque à l’accord entier ; le relâchement conserve cet accord. Sans TRIG tenu, maintenez T pour préparer le prochain TRIG sans modifier la queue précédente. Gardez T tenu pour appliquer son changement à chaque nouveau TRIG ; après son relâchement, les TRIG suivants retrouvent leur extension enregistrée. Enregistrez ces attaques et changements HARMONY. Choisissez MIDI CHORD dans FUNC + RETRIG pour jouer les notes de l’accord sur un instrument externe, ou ROOT pour la sortie d’une seule note. Réglez l’extension habituelle de chaque degré dans FUNC + RETRIG. Les commandes améliorées s’appliquent aussi aux anciens patterns.",
       note: "Se combine avec tous les autres mods Cycles, dont Model-TG et les moteurs Syntakt. Sur CHORD avec Keys ON, Chord Keys choisit Root et Scale du clavier ; Scale Lock de Model-TG reste disponible ailleurs. Les locks HARMONY existants restent lisibles. Nico a testé la version 1.2 sur machine ; les ajouts de maintien des modificateurs et d’accords MIDI attendent un essai matériel." },
     "trig-hold": { label: "Effacer un trig plus facilement",
