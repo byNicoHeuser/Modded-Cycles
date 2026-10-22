@@ -1,4 +1,4 @@
-"""Palettes et macro SHAPE dans le véritable DSP CHORD (notes/40 §15).
+"""Palettes et macro SHAPE dans le véritable DSP CHORD (notes/42 §15).
 
 Seuls la configuration et les contrôles résolus sont instrumentés pour le balayage combinatoire. Une
 seconde partie utilise le vrai stockage ; les gestes UI sont prouvés séparément.

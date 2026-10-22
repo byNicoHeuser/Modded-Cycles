@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Génère 44-chord-keys.json : accords diatoniques sur TRIG 1–16 (notes/40).
+"""Génère 61-chord-keys.json : accords diatoniques sur TRIG 1–16 (notes/42).
 
 Compile les sources ColdFire, les répartit dans des masques de sprites identiques
 redirigés vers leur exemplaire conservé, puis vérifie chaque écriture sur l'OS
@@ -26,7 +26,7 @@ from mtlib.syx import unwrap
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 SRC = HERE / "machines/chord_keys"
-OUT = ROOT / "tweaks/model-cycles_OS1.13/44-chord-keys.json"
+OUT = ROOT / "tweaks/model-cycles_OS1.13/61-chord-keys.json"
 BASE = 0x40000400
 # L'ABI Linux attend les retours de pointeur dans a0, l'OS dans d0.
 # Ne jamais choisir silencieusement un compilateur Linux pour ces appels C.
@@ -34,17 +34,31 @@ CROSS = os.environ.get("M68K_CROSS") or "m68k-elf-"
 CFLAGS = ["-mcpu=54418", "-Os", "-ffreestanding", "-fno-builtin", "-nostdlib", "-fno-pic", "-fno-common",
           "-ffunction-sections", "-fdata-sections", "-fomit-frame-pointer", "-fno-stack-protector",
           "-Wall", "-Wextra", "-Werror"]
-MASKS = (0x4016b6f8, 0x4016b9e8, 0x40171f30, 0x40172608, 0x40179730,
-         0x40182b38, 0x40182e28, 0x40183118, 0x40185018, 0x40185968,
-         0x40185c58, 0x4018cd48, 0x4018d1b8, 0x4018d4a8, 0x4018dba8,
-         0x4018f4b4, 0x4018fc74, 0x401904b4, 0x40192734)
-EXTRA_MASKS = (0x40158744, 0x4016aa28, 0x401699a8, 0x401696a0, 0x40166760,
-               0x4016616c, 0x40163fb8, 0x401625bc, 0x40160e6c, 0x40160b6c,
-               0x40160864, 0x401601fc, 0x4015f50c, 0x4014d74c,
-               0x4015b8f8, 0x401548b4, 0x401542f8, 0x40192ba4,
-               0x4018ff64, 0x4018b1a8, 0x4018af88, 0x40189618,
-               0x40186238, 0x40185308, 0x401835b8)
-MASKS += EXTRA_MASKS
+# Réserves fixes après intégration OS 2.0 (notes/42 §28).
+MASKS = (
+    0x4018d918, 0x4014ab5c, 0x4014b85c, 0x4014d74c, 0x401542f8, 0x401548b4,
+    0x4015b8f8, 0x4015f50c, 0x401601fc, 0x40160864, 0x40160b6c, 0x40160e6c,
+    0x401625bc, 0x40163fb8, 0x4016616c, 0x40166760, 0x401696a0,
+    0x401699a8, 0x4016aa28, 0x40186238, 0x40189618, 0x4018af88,
+    0x4018b1a8, 0x4018ff64, 0x4016ea78, 0x40152d38, 0x401592bc, 0x4015943c,
+    0x4015f38c, 0x40165fec, 0x40168a84, 0x4016bcd8, 0x4016dab8,
+    0x4016fae8, 0x40170c48, 0x40171a48, 0x40172a68, 0x40172be8, 0x401736c8,
+    0x40177f28, 0x40178708, 0x40178fc0, 0x401792b0, 0x40179430, 0x401795b0,
+    0x40179b18, 0x4017c97c, 0x401829b8, 0x40183408, 0x40184808, 0x40184af8,
+    0x40184c78, 0x4018b9c8, 0x4018bb48, 0x4018cbc8, 0x4018d038, 0x40190334,
+    0x4019089c, 0x40192a24, 0x40170ad8, 0x40171bc8, 0x401728f8, 0x40179140,
+    0x40184988, 0x40185648, 0x401857f8, 0x4016f7d0, 0x4016fd60, 0x40172510,
+    0x40178888, 0x40179a20, 0x4017a4d4, 0x401837d8, 0x40189838,
+    0x4018a510, 0x4018bcc8, 0x4018f98c, 0x4018fa84, 0x4018fb7c, 0x401907a4,
+    0x40190a1c, 0x40194ad4, 0x40195a7c, 0x4014a890, 0x4014aa34, 0x4014af84,
+    0x4014b05c, 0x4014b5b4, 0x4014b784, 0x4014e608, 0x40152f88, 0x40159a04,
+    0x40159adc, 0x4015b820, 0x4015bf24, 0x4015c9a4, 0x4015fb6c, 0x40160a94,
+    0x401617a8, 0x40161880, 0x401629dc, 0x40163a60, 0x40167900, 0x40167aa8,
+    0x40168440, 0x401688b4, 0x401698d0, 0x401573cc, 0x40160d9c, 0x40162ab4,
+    0x401630e4, 0x401638c0, 0x40163990, 0x40163b38, 0x40166690, 0x401679d8,
+    0x40167b80, 0x40168c4c, 0x40179c98, 0x40186168,
+)
+EXTRA_MASKS = MASKS
 # Adresse, contrat attendu, symbole, opcode (None = pointeur de vtable).
 HOOKS = (
     (0x400075f0, "4eb940076be4", "ck_chord_display_dirty", 0x4eb9),
@@ -63,7 +77,7 @@ HOOKS = (
     (0x4001cb3e, "4eb94002d138", "ck_ui_menu_ctor", 0x4eb9),
     (0x4005b4a8, "7001156b001c001c", "ck_storage_load_hook", 0x4ef9),
     (0x40061564, "1140001b48780010", "ck_storage_init_hook", 0x4ef9),
-    (0x4005b9c6, "16b5480317420001", "ck_plock_save_hook", 0x4ef9),
+    (0x4005b9be, "47f21a0095cad7c9", "ck_plock_save_hook", 0x4ef9),
     (0x4005bad2, "28713c0070ff", "ck_plock_partial_hook", 0x4ef9),
     (0x4005aa1a, "2f027406222f0008", "ck_plock_decode_hook", 0x4ef9),
     (0x40012274, "4eb9400cfd0e", "ck_plock_note_hook", 0x4ef9),
@@ -118,12 +132,12 @@ def compile_code():
     if target != "m68k-elf":
         raise ValueError(
             f"Chord Keys exige la cible m68k-elf (trouvé {target}) : "
-            "l'OS renvoie les pointeurs dans d0, voir notes/40 et M68K_CROSS")
+            "l'OS renvoie les pointeurs dans d0, voir notes/42 et M68K_CROSS")
     version = run([CROSS + "gcc", "-dumpfullversion"]).strip()
     if version != "16.2.0":
         raise ValueError(
             f"Chord Keys exige m68k-elf-gcc 16.2.0 (trouvé {target} {version}) : "
-            "ABI de retour des pointeurs dans d0 et génération reproductible, voir notes/40")
+            "ABI de retour des pointeurs dans d0 et génération reproductible, voir notes/42")
     with tempfile.TemporaryDirectory(prefix="chord-keys-build-") as directory:
         tmp = Path(directory)
         objects, inputs = [], []
@@ -187,6 +201,8 @@ def compile_code():
 def build_tweak(stock):
     compiled, symbols = compile_code()
     writes = []
+    cave_refs, cave_branches = build.refs_into(stock, [
+        (address - BASE, address - BASE + sprites.MASKS[address][0]) for address, _ in compiled])
     for address, code in compiled:
         capacity, pointer, _, shared = sprites.MASKS[address]
         old = stock[address - BASE:address - BASE + capacity]
@@ -197,14 +213,29 @@ def build_tweak(stock):
         if locations != [pointer - BASE]:
             raise ValueError(f"Références imprévues vers le masque {address:#x}")
         at = pointer - BASE
-        width, height = {376: (47, 47), 280: (35, 35), 384: (33, 48), 272: (34, 34)}[capacity]
-        dimensions = struct.pack(">HHHH", 0x4878, width, 0x4878, height)
+        width, height = next(dim for dim, (_, _, members) in sprites.GROUPS.items()
+                             if any(va == address for va, _ in members))
+        dimensions = struct.pack(">HHHH", 0x4878, height, 0x4878, width)
         if (stock[at - 2:at] not in (b"\x48\x79", b"\x2e\xbc") or
                 stock[at + 4:at + 6] != b"\x48\x79" or
                 stock[at + 10:at + 18] != dimensions):
             raise ValueError(f"Le constructeur du sprite {address:#x} a changé")
         if address in EXTRA_MASKS:
-            sure, branches = build.refs_into(stock, [(address - BASE, address - BASE + capacity)])
+            sure = [ref for ref in cave_refs if address <= ref[1] < address + capacity]
+            branches = [ref for ref in cave_branches if address <= ref[1] < address + capacity]
+            # refs_into interprète aussi les pixels comme des instructions. Ignorer
+            # seulement les sources situées dans un bitmap identifié par son constructeur.
+            bitmap_ranges = []
+            for _, (size, kept, members) in sprites.GROUPS.items():
+                for mask, ref in members:
+                    bitmap_ranges.append((mask, mask + size))
+                    for off in range(ref - BASE + 4, ref - BASE + 20, 2):
+                        if stock[off:off + 2] == b"\x48\x79":
+                            image = struct.unpack_from(">I", stock, off + 2)[0]
+                            bitmap_ranges.append((image, image + size))
+                            break
+            branches = [(src, dst, kind) for src, dst, kind in branches
+                        if not any(lo <= src < hi for lo, hi in bitmap_ranges)]
             if sure != [(pointer, address, "constante 32 bits")] or branches:
                 raise ValueError(f"Entrée imprévue dans la nouvelle cave {address:#x}")
         writes.extend(({"off": address - BASE, "old": old[:len(code)].hex(), "new": code.hex()},
@@ -222,7 +253,7 @@ def build_tweak(stock):
             raise ValueError(f"Instruction stock inattendue à {address:#x}")
         writes.append({"off": address - BASE, "old": old.hex(), "new": replacement})
     tweak = {
-        "id": "chord-keys", "order": 44, "name": "Accords de gamme sur TRIG 1–16",
+        "id": "chord-keys", "order": 61, "name": "Accords de gamme sur TRIG 1–16",
         "description": [
             "Mode Keys dans FUNC + RETRIG : une piste CHORD, gamme et tonique, extensions par degré.",
             "TRIG 1–7 jouent I–VII, 8–14 les mêmes degrés une octave plus haut, 15–16 I–II deux octaves plus haut.",
@@ -244,13 +275,13 @@ def build_tweak(stock):
             "La sortie CHORD respecte MOut, le canal et la destination natifs ; chaque voix garde sa vélocité et sa fin de note.",
             "Palette, SHAPE et HARMONY sont capturés à l'attaque ; PITCH/FINE et balance restent audio. Notes MIDI au-delà de 127 omises.",
             "Réglages par piste sauvegardés avec le pattern. Dernière touche prioritaire, sans retour à la précédente.",
-            "Compatible avec les autres mods, dont Model-TG : Keys garde sa gamme sur CHORD ; Scale Lock reste actif ailleurs.",
-            "HARMONY utilise un slot distinct d'Attack, Filter et Resonance. Aucun essai matériel de cette révision.",
+            "Compatible avec tout OS 2.0, sauf le filtre par piste autonome hors OS : Keys garde sa gamme sur CHORD ; Scale Lock reste actif ailleurs.",
+            "HARMONY utilise le slot de lock 27, distinct d'Attack, Filter, Resonance et LFO 2. Aucun essai matériel de cette révision.",
             f"Code et état dans {len(compiled)} masques de sprites redirigés, {sum(len(c) for _, c in compiled)} octets.",
-            "Généré par tools/gen_chord_keys.py ; sources tools/machines/chord_keys/ ; notes/40.",
+            "Généré par tools/gen_chord_keys.py ; sources tools/machines/chord_keys/ ; notes/42.",
         ],
         "device": "Model:Cycles", "os": "1.13", "section": 3,
-        "conflicts": [],
+        "conflicts": ["track-filter"],
         "symbols": {name: f"{value:#x}" for name, value in sorted(symbols.items())},
         "writes": sorted(writes, key=lambda w: w["off"]),
     }
@@ -278,7 +309,7 @@ def main():
         if args.check:
             if not OUT.exists() or OUT.read_text() != text:
                 raise ValueError("Le JSON ne correspond pas aux sources / à cette version du compilateur")
-            print("ok 44-chord-keys.json est à jour")
+            print("ok 61-chord-keys.json est à jour")
         else:
             OUT.write_text(text)
             print(f"ok {OUT.name} : {len(tweak['writes'])} écritures vérifiées")

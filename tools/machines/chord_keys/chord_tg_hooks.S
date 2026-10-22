@@ -1,4 +1,4 @@
-/* Coexistence Scale Lock (notes/40), sans modifier le code de Model-TG.
+/* Coexistence Scale Lock (notes/42), sans modifier le code de Model-TG.
  * Deux détours immédiatement AVANT ses comparaisons de plage :
  * ON  0x40081734 : d7=fp@(28), d6=fp@(32) ; d2=piste, d3=note.
  * OFF 0x4008146c : d3=fp@(12), d5=fp@(16) ; d2=piste.

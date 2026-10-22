@@ -123,7 +123,7 @@ def run_lock_audio_checks(stock, patched, symbols, extra_code, check):
                         and word(smoothed + 14 + 2 * 23, 2) == attack
                         and word(LOCK_MASK) == (1 << 23) | (1 << SLOT))
     check(independent,
-          "P-lock→DSP : Attack23 et HARMONY28 indépendants, deux locks présents sans altérer leurs valeurs")
+          "P-lock→DSP : Attack23 et HARMONY27 indépendants, deux locks présents sans altérer leurs valeurs")
 
     # Keys OFF doit rester strictement stock même si le pattern contient des
     # locks HARMONY ; ils redeviennent audibles uniquement avec Keys ON.

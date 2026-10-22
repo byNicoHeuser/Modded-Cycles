@@ -82,9 +82,9 @@ class MidiRig(PlockRig):
 
     def params(self, track, palette=0, shape=0, modifier=0, machine=5):
         data = [0] * 33
-        data[9], data[11], data[12], data[28] = machine << 8, (32, 64, 110)[palette] << 8, shape << 8, modifier
+        data[9], data[11], data[12], data[27] = machine << 8, (32, 64, 110)[palette] << 8, shape << 8, modifier
         self.uc.mem_write(PARAMS + 66 * track, struct.pack('>33H', *data))
-        self.word(0x423087f8 + 8 * track, (1 << 28) if modifier else 0)
+        self.word(0x423087f8 + 8 * track, (1 << 27) if modifier else 0)
 
     def params_live(self, palette=0, shape=0, machine=5):
         self.params(0, palette, shape, machine=machine)

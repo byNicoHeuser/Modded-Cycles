@@ -1,4 +1,4 @@
-/* Dernier dessin avant l'envoi au LCD, OS 1.13 (notes/40).
+/* Dernier dessin avant l'envoi au LCD, OS 1.13 (notes/42).
  * 0x4008e622 : lea -40(sp),sp ; movem.l d2-d6/a2-a4,(sp).
  * Préserver tous les registres volatils du C, puis rejouer ce prologue exact
  * et continuer en 0x4008e62a. Le flush, le DSPI et l'échange restent stock.

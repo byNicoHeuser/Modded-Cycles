@@ -1,4 +1,4 @@
-/* MIDI Keys, OS 1.13 (notes/40).
+/* MIDI Keys, OS 1.13 (notes/42).
  * Jeu direct : l'appel audio/recorder vient de finir. d2=piste, d3=note,
  * d4=vélocité ; les paramètres poussés sont supprimés avant l'épilogue natif.
  * La partie MIDI native est remplacée, le traitement audio reste strictement

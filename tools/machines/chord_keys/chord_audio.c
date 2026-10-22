@@ -1,4 +1,4 @@
-/* Accord diatonique dans le véritable update CHORD de l'OS 1.13 (notes/40).
+/* Accord diatonique dans le véritable update CHORD de l'OS 1.13 (notes/42).
  * Le réglage SHAPE est remplacé dans une copie locale des paramètres ; l'OS
  * conserve enveloppes, timbre et Pitch/Fine. COLOR choisit toujours la palette,
  * SHAPE la disposition et la balance des voix.

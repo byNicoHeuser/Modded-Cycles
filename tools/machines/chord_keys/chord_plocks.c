@@ -1,6 +1,7 @@
-/* HARMONY dans les véritables P-locks OS 1.13 (notes/40).
- * Aucun détournement de COLOR, de ses fractions, du MIDI ou du LFO : le slot28
- * n'a aucun descripteur et n'est lu ni par les six moteurs stock ni par Model-TG.
+/* HARMONY dans les véritables P-locks OS 1.13 (notes/42).
+ * Aucun détournement de COLOR, de ses fractions, du MIDI ou du LFO : le slot27
+ * n'a aucun descripteur et son miroir audio n'est pas lu par les moteurs.
+ * Les mots 26/27 du son restent réservés à l'état Sampler, jamais modifiés ici.
  * Les écritures, les flags de présence, la copie et l'effacement restent natifs.
  */
 #include "chord_ui.h"

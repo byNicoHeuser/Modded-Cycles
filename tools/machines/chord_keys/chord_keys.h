@@ -1,7 +1,7 @@
 #ifndef CHORD_KEYS_H
 #define CHORD_KEYS_H
 
-/* Noyau harmonique autonome du clavier CHORD (notes/40).
+/* Noyau harmonique autonome du clavier CHORD (notes/42).
  * Calcule les notes des seize touches TRIG, sans accès au firmware ni au DSP.
  * Aucun état de piste, stockage ou envoi MIDI n'est modifié ici.
  */

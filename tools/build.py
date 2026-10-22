@@ -25,6 +25,7 @@ import array
 import hashlib
 import json
 import pathlib
+import re
 import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -40,6 +41,16 @@ BASE = 0x40000400                             # VA du premier octet de la sectio
 
 def sha(b):
     return hashlib.sha256(b).hexdigest()
+
+
+HEX = re.compile(r"(?:[0-9a-fA-F]{2})*")
+
+
+def unhex(s):
+    """bytes.fromhex, mais sans espace (deux chiffres par octet), comme fromHex de docs/flasher/builder.js."""
+    if not isinstance(s, str) or not HEX.fullmatch(s):
+        raise SystemExit(f"!! hexadecimal invalide : {str(s)[:24]}")
+    return bytes.fromhex(s)
 
 
 def load_catalog():
@@ -221,8 +232,10 @@ def apply_writes(main_os, tweaks_selected):
     for t in tweaks_selected:
         for w in t["writes"]:
             off = w["off"]
-            old = bytes.fromhex(w["old"])
-            new = bytes.fromhex(w["new"])
+            old = unhex(w["old"])
+            new = unhex(w["new"])
+            if not isinstance(off, int) or isinstance(off, bool) or off < 0 or off + len(old) > len(data):
+                raise SystemExit(f"!! {t['id']} : ecriture hors de la section 3 (off {off})")
             cur = bytes(data[off:off + len(old)])
             if cur == new and cur != old:
                 continue                         # la meme ecriture, deja faite par un autre tweak (masque partage)
@@ -255,20 +268,29 @@ def payload_runtime(t, main_os, st_img):
             lo, hi = (int(x, 16) for x in part["cycles"])
             chunk = main_os[lo - BASE:hi - BASE]
         else:
-            chunk = bytes.fromhex(part["hex"])
+            chunk = unhex(part["hex"])
         out[at:at + len(chunk)] = chunk
     for va, old, new in ap_["reloc"]:
         at = int(va, 16) - dest
-        if out[at:at + 4] != bytes.fromhex(old):
+        o, n = unhex(old), unhex(new)
+        if len(o) != 4 or len(n) != 4 or not 0 <= at <= len(out) - 4:
+            raise SystemExit(f"!! relocalisation {va} : 4 octets attendus dans la charge utile")
+        if out[at:at + 4] != o:
             raise SystemExit(f"!! relocalisation {va} : {old} attendu, {out[at:at + 4].hex()} trouvé")
-        out[at:at + 4] = bytes.fromhex(new)
+        out[at:at + 4] = n
     return bytes(out)
 
 
 def payload_image(t, runtime):
-    """Ce qui va dans l'image : la charge utile entière, ou rangée en morceaux (append.pack : [adresse, taille]) ;
-    hors des morceaux, tout doit être à zéro (le crochet de démarrage remet à zéro, puis recopie les morceaux)."""
+    """Ce qui va dans l'image : la charge utile entière, rangée en morceaux (append.pack : [adresse, taille] ; hors
+    des morceaux, tout doit être à zéro : le crochet de démarrage remet à zéro, puis recopie les morceaux), ou
+    compressée (append.compress = "aplib" : tools/aplib_grow.py pack, décompressée par le crochet, notes/50)."""
     ap_ = t["append"]
+    if "compress" in ap_:
+        if ap_["compress"] != "aplib":
+            raise SystemExit(f"!! {t['id']} : compression {ap_['compress']!r} inconnue")
+        import aplib_grow                               # noqa: E402
+        return aplib_grow.pack(runtime)
     if "pack" not in ap_:
         return runtime
     dest, out, kept = int(ap_["dest"], 16), bytearray(), bytearray(runtime)
@@ -310,7 +332,8 @@ def build_payload(chosen, main_os, syntakt_path):
         out += chunk
         src = pathlib.Path(syntakt_path).name if "syntakt" in ap_ else "le tweak seul"
         where = "en place" if ap_["dest"] == ap_["at"] else f"copiée à {ap_['dest']} au démarrage"
-        packed = f", rangée en {len(chunk)} o" if "pack" in ap_ else ""
+        packed = (f", compressée en {len(chunk)} o" if "compress" in ap_ else f", rangée en {len(chunk)} o" if "pack" in ap_
+                  else "")
         print(f"  charge utile {t['id']} : {ap_['size']} o depuis {src}, {len(ap_['reloc'])} relocalisations, {where}{packed}")
     if BASE + len(main_os) + len(out) > END_LIMIT:
         raise SystemExit(f"!! l'OS agrandi dépasserait {END_LIMIT:#x}")
@@ -321,7 +344,9 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("-i", "--input", help="ton .syx officiel")
-    ap.add_argument("-t", "--tweaks", help="liste d'ids separes par des virgules")
+    ap.add_argument("-t", "--tweaks", help="liste d'ids separes par des virgules (developpement)")
+    ap.add_argument("--os", action="store_true",
+                    help="construit le Modded Cycles OS : les tweaks de os.json (ce que le flasher web installe)")
     ap.add_argument("--all", action="store_true", help="applique tous les tweaks du device")
     ap.add_argument("-o", "--output", help="fichier de sortie (defaut: <in>_mod.syx)")
     ap.add_argument("--list", action="store_true", help="liste les tweaks disponibles")
@@ -355,7 +380,15 @@ def main():
         raise SystemExit("!! la section 3 ne correspond pas a l'image de reference")
     print(f"cible : {dev['device']} OS {dev['os']}")
 
-    if args.all:
+    if args.os:
+        os_def = json.loads((ROOT / "os.json").read_text(encoding="utf-8"))
+        chosen = []
+        for tid in os_def["tweaks"]:
+            if tid not in tweaks:
+                raise SystemExit(f"!! os.json : tweak inconnu : {tid}")
+            chosen.append(tweaks[tid])
+        print(f"  {os_def['name']} {os_def['version']}")
+    elif args.all:
         chosen = list(tweaks.values())
     elif args.tweaks:
         chosen = []
@@ -365,7 +398,7 @@ def main():
                 raise SystemExit(f"!! tweak inconnu : {tid}")
             chosen.append(tweaks[tid])
     else:
-        raise SystemExit("!! choisis --all ou -t <ids>")
+        raise SystemExit("!! choisis --os (le Modded Cycles OS), -t <ids> ou --all")
     check_conflicts(chosen)
     chosen.sort(key=lambda t: t["order"])            # dans l'ordre des tweaks : l'un peut s'appliquer sur l'autre
     for t in chosen:

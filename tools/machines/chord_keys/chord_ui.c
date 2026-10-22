@@ -1,4 +1,4 @@
-/* Touches TRIG et menu du clavier d'accords, OS 1.13 (notes/40).
+/* Touches TRIG et menu du clavier d'accords, OS 1.13 (notes/42).
  * Les notes passent par les helpers stock ; le moteur interprète leur degré
  * avec la configuration publiée. Aucun état sonore n'est modifié directement.
  * Les seize touches parcourent les degrés, puis les octaves. Les modificateurs
@@ -292,12 +292,24 @@ static void replay_held_key(u32 track)
     }
 }
 
+static __attribute__((noinline)) void prepare_held_modifier(u32 track)
+{
+    u32 sr, modifier;
+    const void *header;
+    header = ck_ui_header();
+    modifier = prepared_modifiers[track].header == header
+        ? prepared_modifiers[track].modifier : 0;
+    sr = ck_storage_irq_save();
+    live_modifiers[track].header = header;
+    live_modifiers[track].modifier = modifier;
+    ck_storage_irq_restore(sr);
+}
+
 static __attribute__((noinline)) int handle_press(void *view, u8 *event, u32 key)
 {
     struct chord_keys_result chord;
     void *state;
-    u32 track, word, sr, modifier;
-    const void *header;
+    u32 track, word;
     if ((WORD(event, 16) & 2) || KEY(1) || KEY(2) || KEY(3))
         return 0;
     state = ((void *(*)(void))0x400cf9a8)();
@@ -316,13 +328,7 @@ static __attribute__((noinline)) int handle_press(void *view, u8 *event, u32 key
      * pattern, sinon il part de son extension. Seuls le relâchement du pad ou
      * un changement de réglage annulent cette préparation.
      */
-    header = ck_ui_header();
-    modifier = prepared_modifiers[track].header == header
-        ? prepared_modifiers[track].modifier : 0;
-    sr = ck_storage_irq_save();
-    live_modifiers[track].header = header;
-    live_modifiers[track].modifier = modifier;
-    ck_storage_irq_restore(sr);
+    prepare_held_modifier(track);
     play_key(view, key, track, chord.notes[0], key_velocity(track));
     return 1;
 }
@@ -371,12 +377,12 @@ static const char *const modes[] = { "MAJ", "DOR", "PHR", "LYD", "MIX", "MINOR",
 static const char *const extensions[] = { "TRI", "7", "9", "11", "13" };
 static const char *const notes[] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
 
-static u32 field_shift(u32 field)
+static __attribute__((noinline)) u32 field_shift(u32 field)
 {
     return field == 0 ? 31 : field == 1 ? 21 : field == 2 ? 28 : 3 * (field - 3);
 }
 
-static u32 field_value(u32 word, u32 field)
+static __attribute__((noinline)) u32 field_value(u32 word, u32 field)
 {
     return (word >> field_shift(field)) & (field == 0 ? 1 : field == 1 ? 127 : 7);
 }
@@ -408,6 +414,18 @@ void ck_ui_item_draw(u32 **closure, u32 unused, u32 canvas, u8 *item, u32 flags)
     ((void (*)(u32 *))0x40072080)(buffer);
 }
 
+static __attribute__((noinline)) void change_midi_mode(u32 track, s32 delta)
+{
+    s32 value;
+    value = (s32)ck_ui_midi_get(track) + delta;
+    if (value < 0)
+        value = 0;
+    if (value > 1)
+        value = 1;
+    ck_ui_cancel_track(track);
+    ck_ui_midi_set(track, value);
+}
+
 void ck_ui_item_change(u32 **closure, u32 unused, s32 delta)
 {
     u32 field = **closure, track = selected_track(), word, shift, mask, high;
@@ -416,13 +434,7 @@ void ck_ui_item_change(u32 **closure, u32 unused, s32 delta)
     if (track >= 6)
         return;
     if (field == 10) {
-        value = (s32)ck_ui_midi_get(track) + delta;
-        if (value < 0)
-            value = 0;
-        if (value > 1)
-            value = 1;
-        ck_ui_cancel_track(track);
-        ck_ui_midi_set(track, value);
+        change_midi_mode(track, delta);
         return;
     }
     word = ck_ui_config_get(track);

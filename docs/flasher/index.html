@@ -4,21 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Model:Cycles Flasher</title>
-<meta name="description" content="Install mods on the Elektron Model:Cycles from your browser, over USB in about 30 seconds (Web MIDI). No firmware is provided or uploaded: you bring your own official OS file.">
+<meta name="description" content="Install the Modded Cycles OS on the Elektron Model:Cycles or Model:Samples from your browser, over USB in about 30 seconds (Web MIDI). No firmware is provided or uploaded: you bring your own official OS files.">
 <meta name="theme-color" content="#e3e2de" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1b1b1b" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400..700&display=swap">
-<link rel="stylesheet" href="../assets/site.css?v=2026-10-10-01">
-<link rel="stylesheet" href="style.css?v=2026-10-10-01">
+<link rel="stylesheet" href="../assets/site.css?v=2026-10-22-01">
+<link rel="stylesheet" href="style.css?v=2026-10-22-01">
 <script>try{var l=localStorage.getItem("mc-lang"),t=localStorage.getItem("mc-theme")}catch(e){}document.documentElement.lang=l||(/^fr\b/i.test(navigator.language||"")?"fr":"en");if(t)document.documentElement.setAttribute("data-theme",t)</script>
 </head>
 <body data-page="flasher">
 <script>
   // Version stamp: an old date means the browser serves a cached copy -> hard reload.
-  window.MC_BUILD = "2026-10-10-01";
+  window.MC_BUILD = "2026-10-22-01";
   window.addEventListener("error", function (e) {
     var b = document.getElementById("errbar");
     if (!b) return;
@@ -31,7 +31,6 @@
 <header class="wrap top">
   <a class="brand" href="../">Modded Cycles</a>
   <nav aria-label="Site">
-    <a href="../chord-keys/">Chord Keys</a>
     <a href="./" aria-current="page">Flasher</a>
     <a href="../guide/">Guide</a>
     <a href="https://github.com/18nelli18/Modded-Cycles" target="_blank" rel="noopener">GitHub</a>
@@ -43,15 +42,10 @@
 </header>
 
 <main class="wrap fl">
-  <aside class="fork-note">
-    <span data-l="en"><b>Chord Keys · Nico’s flasher.</b> This preview is maintained in <a href="https://github.com/byNicoHeuser/Modded-Cycles/tree/codex/chord-harmony-controls">Nico’s fork</a>, based on <a href="https://github.com/18nelli18/Modded-Cycles">Modded Cycles by 18nelli18 and contributors</a>.</span>
-    <span data-l="fr"><b>Chord Keys · flasher de Nico.</b> Cette version est maintenue dans <a href="https://github.com/byNicoHeuser/Modded-Cycles/tree/codex/chord-harmony-controls">le fork de Nico</a>, basé sur <a href="https://github.com/18nelli18/Modded-Cycles">Modded Cycles par 18nelli18 et ses contributeurs</a>.</span>
-  </aside>
-
   <div class="fl-head">
     <h1 data-i18n="title">Model:Cycles Flasher</h1>
     <div>
-      <p data-i18n="tagline">Install mods on your Elektron Model:Cycles, right from your browser.</p>
+      <p data-i18n="tagline">Install the Modded Cycles OS on your Elektron Model:Cycles or Model:Samples, right from your browser.</p>
       <p class="ver"><span data-l="en">Version</span><span data-l="fr">Version</span> <span data-rel="version">1.0</span> · <a href="../#version"><span data-l="en">what's new</span><span data-l="fr">nouveautés</span></a> · <a href="../guide/"><span data-l="en">guide</span><span data-l="fr">guide</span></a></p>
     </div>
   </div>
@@ -59,43 +53,86 @@
   <div id="errbar" class="alert bad" hidden></div>
   <div id="compat" class="alert bad" role="alert" hidden></div>
 
-  <section class="test-scope" id="chord-test-scope" aria-labelledby="test-scope-title">
-    <h2 id="test-scope-title"><span data-l="en">Chord Keys · experimental update</span><span data-l="fr">Chord Keys · mise à jour expérimentale</span></h2>
-    <p class="test-limit"><span data-l="en"><b>Tested by Nico Heuser on his Model:Cycles with the other Cycles mods available in this flasher.</b> That report covers version 1.2: harmony palettes, performance pads and HARMONY locks. The new held-modifier and MIDI chord additions await hardware testing.</span><span data-l="fr"><b>Testé par Nico Heuser sur son Model:Cycles avec les autres mods Cycles disponibles dans ce flasher.</b> Ce retour concerne la version 1.2 : palettes harmoniques, pads de jeu et locks HARMONY. Les ajouts de maintien des modificateurs et d’accords MIDI attendent un essai matériel.</span></p>
-    <p><span data-l="en">Hardware report: 7 October 2026. This covers the mods, not every possible combination. The upstream experimental classification is unchanged. <a href="../chord-keys/">Explore Chord Keys</a>.</span><span data-l="fr">Retour matériel du 7 octobre 2026. Il concerne les mods, pas toutes les combinaisons possibles. La classification expérimentale amont est inchangée. <a href="../chord-keys/">Découvrir Chord Keys</a>.</span></p>
-    <details>
-      <summary><span data-l="en">Compatibility and limits</span><span data-l="fr">Compatibilité et limites</span></summary>
-      <p><span data-l="en">Compatible choices include USB audio, Arpeggiator, Tempo, startup animation, latching mute, trig preview, scrolling names, easier trig removal and the five Syntakt engines. Software checks do not measure real-device load or USB timing.</span><span data-l="fr">Les choix compatibles comprennent audio USB, arpégiateur, tempo, animation de démarrage, mute verrouillé, écoute d’un pas, noms qui défilent, effacement facilité des trigs et les cinq moteurs Syntakt. Les contrôles logiciels ne mesurent ni la charge réelle ni les délais USB sur machine.</span></p>
-      <p><span data-l="en"><b>Model-TG can be combined with Chord Keys.</b> On CHORD with Keys ON, Chord Keys chooses the keyboard’s Root and Scale; Model-TG’s Scale Lock remains available elsewhere. Samples OS is a separate installation. Large-pad retrig/arp is available with Keys OFF. HARMONY pad changes can be recorded as parameter locks. <a href="../guide/#chord-keys">Read the Chord Keys guide</a>.</span><span data-l="fr"><b>Model-TG peut être combiné avec Chord Keys.</b> Sur CHORD avec Keys ON, Chord Keys choisit Root et Scale du clavier ; Scale Lock de Model-TG reste disponible ailleurs. L’OS Samples s’installe séparément. Le retrig/arp des grands pads reste disponible avec Keys OFF. Les changements HARMONY peuvent être enregistrés en P-locks. <a href="../guide/#chord-keys">Lire le guide Chord Keys</a>.</span></p>
-    </details>
-  </section>
-
   <!-- 1. Choose -->
   <section class="step" id="step-choose" aria-labelledby="h1s">
     <header><span class="num">1</span><h2 id="h1s" data-i18n="s1">What do you want to install?</h2></header>
     <div class="step-body">
       <div class="seg" role="tablist" aria-label="Mode">
-        <button type="button" role="tab" id="tab-mods" aria-selected="true" aria-controls="panel-mods" data-i18n="tab_mods">Mods</button>
+        <button type="button" role="tab" id="tab-mods" aria-selected="true" aria-controls="panel-mods" data-i18n="tab_mods">Modded Cycles OS</button>
         <button type="button" role="tab" id="tab-restore" aria-selected="false" aria-controls="panel-restore" data-i18n="tab_restore">Official firmware</button>
         <button type="button" role="tab" id="tab-samples" aria-selected="false" aria-controls="panel-samples" data-i18n="tab_samples">Samples OS</button>
       </div>
       <div id="panel-mods" role="tabpanel" aria-labelledby="tab-mods">
+        <p class="mach-q" id="mach-q" data-i18n="mach_q">Your machine</p>
+        <div class="seg sub" role="radiogroup" aria-labelledby="mach-q">
+          <button type="button" role="radio" id="mach-cyc" aria-checked="true" data-i18n="mach_cyc">Model:Cycles</button>
+          <button type="button" role="radio" id="mach-smp" aria-checked="false" data-i18n="mach_smp">Model:Samples, on its own OS</button>
+          <button type="button" role="radio" id="mach-cos" aria-checked="false" data-i18n="mach_cos">Model:Samples, already on the Cycles OS</button>
+        </div>
+        <div id="mach-pane" class="mach-pane" hidden>
+          <p class="samples-head"><span data-i18n="mach_title">Mods on a Model:Samples</span><span class="tag ok" data-i18n="tested">Tested</span></p>
+          <p class="panel-text" data-i18n="mach_text"></p>
+          <ul class="warn-list">
+            <li id="mach-w-smp" data-i18n="mach_w_smp"></li>
+            <li id="mach-w-cos" data-i18n="mach_w_cos" hidden></li>
+            <li data-i18n="mach_w1"></li>
+            <li data-i18n="mach_w2"></li>
+            <li id="mach-w-only" data-i18n="mach_w4"></li>
+            <li data-i18n="mach_w5"></li>
+            <li data-i18n="xos_reset"></li>
+            <li data-i18n-html="mach_w3"></li>
+          </ul>
+          <p class="note mach-credit" data-i18n="mach_credit"></p>
+          <label class="check"><input id="mach-ack" type="checkbox"><span data-i18n="cos_ack">I have backed up my samples and projects with Elektron Transfer, and I keep the official Model:Samples OS file for the way back.</span></label>
+        </div>
+        <!-- one firmware, nothing to pick: the OS header, then what it contains, by section (app.js renderFeatures) -->
+        <div class="os-head" id="os-head"></div>
+        <ul class="cats" id="cats"></ul>
         <div id="features"></div>
-        <p class="note" data-i18n="mods_note">Tick several to combine them. Test badges apply to each mod or engine choice, not every combination. Nico has tested Chord Keys 1.2 on his Model:Cycles with the other Cycles mods in this flasher.</p>
       </div>
       <div id="panel-restore" role="tabpanel" aria-labelledby="tab-restore" hidden>
         <p class="panel-text" data-i18n-html="restore_text"></p>
         <p class="note" data-i18n-html="restore_from_samples"></p>
       </div>
       <div id="panel-samples" role="tabpanel" aria-labelledby="tab-samples" hidden>
-        <p class="samples-head"><span data-i18n="samples_title">Turn your Model:Cycles into a Model:Samples</span><span class="tag ok" data-i18n="tested">Tested</span></p>
-        <p class="panel-text" data-i18n="samples_text"></p>
-        <ul class="warn-list">
-          <li data-i18n="samples_w1"></li>
-          <li data-i18n-html="samples_w2"></li>
-          <li data-i18n="samples_w3"></li>
-        </ul>
-        <label class="check"><input id="samples-ack" type="checkbox"><span data-i18n="samples_ack">I have a MIDI interface for the way back (to the Model:Cycles MIDI IN).</span></label>
+        <div class="seg sub" role="radiogroup" aria-label="Machine">
+          <button type="button" role="radio" id="smp-dir-cyc" aria-checked="true" data-i18n="smp_dir_cyc">Model:Cycles → Samples OS</button>
+          <button type="button" role="radio" id="smp-dir-smp" aria-checked="false" data-i18n="smp_dir_smp">Model:Samples → Cycles OS</button>
+          <button type="button" role="radio" id="smp-dir-back" aria-checked="false" data-i18n="smp_dir_back">Model:Samples: back to its OS</button>
+        </div>
+        <div id="smp-pane-cyc">
+          <p class="samples-head"><span data-i18n="samples_title">Turn your Model:Cycles into a Model:Samples</span><span class="tag ok" data-i18n="tested">Tested</span></p>
+          <p class="panel-text" data-i18n="samples_text"></p>
+          <ul class="warn-list">
+            <li data-i18n="samples_w1"></li>
+            <li data-i18n-html="samples_w2"></li>
+            <li data-i18n="samples_w3"></li>
+          </ul>
+          <label class="check"><input id="samples-ack" type="checkbox"><span data-i18n="samples_ack">I have a MIDI interface for the way back (to the Model:Cycles MIDI IN).</span></label>
+        </div>
+        <div id="smp-pane-smp" hidden>
+          <p class="samples-head"><span data-i18n="cos_title">Turn your Model:Samples into a Model:Cycles</span><span class="tag exp" data-i18n="experimental">Experimental</span></p>
+          <p class="panel-text" data-i18n="cos_text"></p>
+          <ul class="warn-list">
+            <li data-i18n="cos_w1"></li>
+            <li data-i18n="cos_w5"></li>
+            <li data-i18n-html="cos_w2"></li>
+            <li data-i18n="cos_w3"></li>
+            <li data-i18n="xos_reset"></li>
+            <li data-i18n-html="cos_w4"></li>
+          </ul>
+          <p class="note" data-i18n="cos_mods"></p>
+          <label class="check"><input id="cos-ack" type="checkbox"><span data-i18n="cos_ack">I have backed up my samples and projects with Elektron Transfer, and I keep the official Model:Samples OS file for the way back.</span></label>
+        </div>
+        <div id="smp-pane-back" hidden>
+          <p class="samples-head"><span data-i18n="sback_title">Give your Model:Samples its own OS back</span><span class="tag exp" data-i18n="experimental">Experimental</span></p>
+          <p class="panel-text" data-i18n="sback_text"></p>
+          <ul class="warn-list">
+            <li data-i18n="sback_w1"></li>
+            <li data-i18n-html="sback_w2"></li>
+            <li data-i18n="xos_reset"></li>
+          </ul>
+        </div>
       </div>
     </div>
   </section>
@@ -207,8 +244,9 @@
 
   <section class="credits" id="credits" aria-labelledby="hcr">
     <h2 id="hcr" data-i18n="credits">Credits</h2>
-    <p data-i18n="credits_intro">This flasher stands on the shoulders of these open-source projects (MIT licence), none of which includes firmware:</p>
+    <p data-i18n="credits_intro">This flasher stands on the shoulders of these projects, none of which includes firmware:</p>
     <ul id="credits-list"></ul>
+    <p data-i18n-html="credits_license">Modded-Cycles is released under the <a href="https://github.com/18nelli18/Modded-Cycles/blob/main/LICENSE" target="_blank" rel="noopener">MIT license</a>. Third-party code keeps its own license and Elektron's firmware is not covered: see the <a href="https://github.com/18nelli18/Modded-Cycles/blob/main/THIRD-PARTY-NOTICES.md" target="_blank" rel="noopener">notices</a>.</p>
   </section>
 </main>
 
@@ -221,11 +259,11 @@
 </footer>
 
 <!-- ?v= : same version stamp as MC_BUILD, so a browser never mixes a new page with cached old scripts -->
-<script src="../assets/release.js?v=2026-10-10-01"></script>
-<script src="../assets/site.js?v=2026-10-10-01"></script>
-<script src="builder.js?v=2026-10-10-01"></script>
-<script src="tweaks.js?v=2026-10-10-01"></script>
-<script src="flasher.js?v=2026-10-10-01"></script>
-<script src="app.js?v=2026-10-10-01"></script>
+<script src="../assets/release.js?v=2026-10-22-01"></script>
+<script src="../assets/site.js?v=2026-10-22-01"></script>
+<script src="builder.js?v=2026-10-22-01"></script>
+<script src="tweaks.js?v=2026-10-22-01"></script>
+<script src="flasher.js?v=2026-10-22-01"></script>
+<script src="app.js?v=2026-10-22-01"></script>
 </body>
 </html>

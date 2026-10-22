@@ -1,4 +1,4 @@
-/* Noms exacts des voicings à trois/quatre notes de CHORD Keys (notes/40).
+/* Noms exacts des voicings à trois/quatre notes de CHORD Keys (notes/42).
  * Les extensions naturelles prennent leur nom usuel, avec les notes omises
  * sur une seconde ligne ; une tension altérée reste explicite sur la septième.
  * Sans libc, allocation, calcul flottant ni état partagé.
@@ -9,7 +9,7 @@ static const char *const note_names[] = {
     "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
 };
 
-static char *append(char *out, const char *text)
+static __attribute__((noinline)) char *append(char *out, const char *text)
 {
     while (*text)
         *out++ = *text++;
@@ -25,15 +25,21 @@ seventh_name(unsigned int third, unsigned int seventh)
 }
 
 static __attribute__((noinline)) char *
+altered_name(char *out, char *omissions, unsigned int third,
+             unsigned int seventh, unsigned int tension)
+{
+    out = append(out, seventh_name(third, seventh));
+    out = append(out, tension == 13 ? "(b9)" : tension == 18 ? "(#11)" : "(b13)");
+    append(omissions, third == 6 ? "no3" : "no5");
+    return out;
+}
+
+static __attribute__((noinline)) char *
 extended_name(char *out, char *omissions, unsigned int third,
               unsigned int seventh, unsigned int tension)
 {
-    if (tension == 13 || tension == 18 || tension == 20) {
-        out = append(out, seventh_name(third, seventh));
-        out = append(out, tension == 13 ? "(b9)" : tension == 18 ? "(#11)" : "(b13)");
-        append(omissions, third == 6 ? "no3" : "no5");
-        return out;
-    }
+    if (tension == 13 || tension == 18 || tension == 20)
+        return altered_name(out, omissions, third, seventh, tension);
     if (third == 3 || third == 6)
         out = append(out, "m");
     else if (seventh == 11)

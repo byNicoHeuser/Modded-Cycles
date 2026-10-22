@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare une optimisation CHORD Keys à son JSON de référence (notes/40).
+"""Compare une optimisation CHORD Keys à son JSON de référence (notes/42).
 
 Exécute les deux versions du vrai DSP, avec le getter de stockage natif : voix
 entières, instantanés d'accords et blocs PCM doivent rester identiques. La matrice
@@ -10,7 +10,7 @@ Les compteurs portent sur les instructions exécutées, pas les cycles matériel
 
     python3 tools/emu/chord_cpu_checks.py \\
         --cycles firmware/model-cycles_OS1.13.syx \\
-        --before-tweak build/chord-cpu-before/44-chord-keys.json
+        --before-tweak build/chord-cpu-before/61-chord-keys.json
 
 Aucune image ou sortie PCM n'est sauvegardée. Durée attendue : environ une minute.
 """
@@ -31,8 +31,8 @@ import mcengine as E
 
 SHAPES = (3, 4, 8, 12, 16, 20, 24, 28, 32)
 COLORS = (32, 64, 110)
-SLOT, LOCK_MASK, EVENT = 28, 0x423087f8, 0x420c0000
-DEFAULT_TWEAK = HERE.parents[1] / "tweaks/model-cycles_OS1.13/44-chord-keys.json"
+SLOT, LOCK_MASK, EVENT = 27, 0x423087f8, 0x420c0000
+DEFAULT_TWEAK = HERE.parents[1] / "tweaks/model-cycles_OS1.13/61-chord-keys.json"
 
 
 class Version:

@@ -1,4 +1,4 @@
-/* Palettes, gestes temporaires et disposition des notes (notes/40 §14.7–14.8).
+/* Palettes, gestes temporaires et disposition des notes (notes/42 §14.7–14.8).
  * Au plus quatre notes ; aucun flottant, allocation ou état partagé.
  */
 #include "chord_voicing.h"

@@ -1,16 +1,23 @@
 #!/usr/bin/env python3
-"""Embarque les tables de patchs dans docs/flasher/tweaks.js pour le flasher web.
+"""Generate docs/flasher/tweaks.js, the data the web flasher embeds, from os.json and tweaks/model-cycles_OS1.13/.
 
-Le flasher web (docs/flasher/) construit le .syx dans le navigateur ; il lui
-faut les tweaks. Plutot que de les lire par fetch (chemins fragiles sous GitHub
-Pages, ne marche pas en file://), on les embarque dans un petit .js genere ici,
-a partir des JSON canoniques de tweaks/. Source unique : ce script recopie, il
-n'invente rien.
+The flasher installs ONE firmware, the Modded Cycles OS: the tweaks listed in os.json ("tweaks"), applied to the
+user's official OS 1.13 in the browser. tweaks.js carries only those tweaks (their writes, payload recipes and
+metadata), the OS description (name, version, status, added machines) and the list of features shown on the page
+(id, section, status, credit, license, guide anchor). The page's texts for each feature live in docs/flasher/app.js
+(FEAT, en/fr). The other JSON files in tweaks/ are the library of building blocks tools/build.py -t can still build
+for development; they are not sent to users.
 
-    python3 tools/gen_flasher_tweaks.py           # (re)genere docs/flasher/tweaks.js
-    python3 tools/gen_flasher_tweaks.py --check    # verifie qu'il est a jour (CI)
+    python3 tools/gen_flasher_tweaks.py            # writes docs/flasher/tweaks.js and the license files it serves
+    python3 tools/gen_flasher_tweaks.py --check    # validation: is it up to date?
+
+Checks done here: every tweak of the OS exists, the set is buildable (no declared conflict, every "requires"
+satisfied inside the set, like tools/build.py), every feature points at tweaks of the OS, every tweak of the OS is
+owned by a feature, categories are known, license files exist.
 """
 import argparse
+import collections
+import copy
 import json
 import pathlib
 import sys
@@ -18,246 +25,209 @@ import sys
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent
 DEV_DIR = ROOT / "tweaks" / "model-cycles_OS1.13"
+OS_JSON = ROOT / "os.json"
 OUT = ROOT / "docs" / "flasher" / "tweaks.js"
 
-# Fonctionnalites proposees dans le flasher web, en cases a cocher. Une fonctionnalite peut
-# avoir plusieurs variantes mutuellement exclusives : elles s'affichent en sous-choix quand la
-# case est cochee. Chaque variante pointe vers un tweak de tweaks/.
-# Le flasher web n'envoie que par USB (CONFIG > UPGRADE) : il ne propose que des tweaks qui gardent
-# cette mise a jour par USB. 6ch-multiout (la casse) et sdvintage-snare restent dans build.py.
-# Vrais moteurs du Syntakt ("engines") : une case par moteur du catalogue de gen_syntakt_engines.py ;
-# chaque combinaison cochee pointe vers son tweak syntakt-<moteurs> ; la carte est « testee » si au moins une
-# combinaison l'est (HW_TESTED de gen_syntakt_engines.py).
-# excludes : cartes qu'on ne peut pas cocher ensemble (cocher l'une decoche l'autre).
-# includes : tweaks deja contenus dans cette fonctionnalite ; ils s'en excluent comme avec excludes, et le flasher
-# les affiche coches et verrouilles, « inclus avec … », tant qu'elle est cochee.
-# Les moteurs s'ajoutent en machines supplementaires : sdvintage-exact (a la place de SNARE) reste dans build.py.
-# status : "tested" (flashe sur un vrai Model:Cycles) ou "experimental".
-# credit : auteur du travail d'origine, affiche sur la carte (voir aussi les credits de la page).
-# Pour ajouter une fonctionnalite : ecrire son tweak JSON, puis l'ajouter ici.
-FEATURES = [
-    {
-        "id": "usb6",
-        "label": "Sortie USB 6 canaux separes",
-        "desc": "Chaque piste sort sur son propre canal USB (48 kHz / 32 bits). Le mix stereo "
-                "n'est plus envoye en USB : tu melanges les 6 pistes dans ton logiciel.",
-        "status": "tested",
-        "credit": {"kind": "based", "who": "scottmetoyer", "repo": "scottmetoyer/ms-multi-output"},
-        "variants": [
-            {"file": "11-6ch-usbup", "label": None},
-        ],
-    },
-    {
-        "id": "model-tg",
-        "label": "Model-TG",
-        "desc": "Machine Sampler, reechantillonnage, retrig et effets master, et plus.",
-        "status": "experimental",
-        "credit": {"kind": "by", "who": "TinyGregAudio", "repo": "TinyGregAudio/Model-TG"},
-        # Model-TG contient deja les tweaks de drumkilla : le flasher les affiche coches et verrouilles
-        # (« inclus avec Model-TG ») tant que Model-TG est coche, sans les ajouter au build
-        "includes": ["latching-mute", "trig-preview", "browser-scroll"],
-        "license": "LICENSE-Model-TG",
-        "variants": [
-            {"file": "30-model-tg", "label": None},
-        ],
-        # avec les moteurs du Syntakt : la base de la version combinee (notes/31), et pour chaque combinaison de
-        # moteurs son tweak syntakt-tg-<moteurs> (« tg » des combinaisons de la carte des moteurs)
-        "with": {"syntakt": "30-model-tg-st"},
-    },
-    {
-        "id": "latching-mute",
-        "label": "Mode mute verrouille",
-        "desc": "Maintiens TRK et tape FUNC : le mode mute reste actif, tu mutes les pistes sans tenir FUNC. "
-                "Un appui court sur FUNC en sort.",
-        "status": "tested",
-        "credit": {"kind": "by", "who": "drumkilla", "repo": "drumkilla/elektron-model-tweaks"},
-        "variants": [
-            {"file": "01-latching-mute", "label": None},
-        ],
-    },
-    {
-        "id": "trig-preview",
-        "label": "Ecoute d'un pas (TRIG + PAGE)",
-        "desc": "Sequenceur a l'arret (ou en pause), maintiens un pas et appuie sur PAGE : le pas joue avec sa note, "
-                "sa longueur et ses p-locks.",
-        "status": "tested",
-        "credit": {"kind": "by", "who": "drumkilla", "repo": "drumkilla/elektron-model-tweaks"},
-        "variants": [
-            {"file": "02-trig-preview", "label": None},
-        ],
-    },
-    {
-        "id": "browser-scroll",
-        "label": "Defilement des noms longs",
-        "desc": "Dans le navigateur de sons, un nom trop long pour l'ecran defile.",
-        "status": "tested",
-        "credit": {"kind": "by", "who": "drumkilla", "repo": "drumkilla/elektron-model-tweaks"},
-        "variants": [
-            {"file": "03-browser-scroll", "label": None},
-        ],
-    },
-    {
-        "id": "trig-hold",
-        "label": "Effacer un trig plus facilement",
-        "desc": "Un appui sur une touche de pas qui porte deja un trig l'efface si tu relaches en moins d'une "
-                "demi-seconde (0,2 s avec l'OS d'origine). Tenu plus longtemps, le trig reste et ses reglages s'affichent.",
-        "status": "tested",
-        "credit": None,
-        "variants": [
-            {"file": "41-trig-hold", "label": None},
-        ],
-    },
-    {
-        "id": "arp",
-        "label": "Arpegiateur",
-        "desc": "Le retrig devient un arpegiateur : plusieurs notes tenues avec RETRIG (ou A.On) se jouent l'une "
-                "apres l'autre. FUNC + RETRIG : sens (Arp) et octaves (Oct), enregistres avec le pattern. "
-                "En live rec, les notes jouees par l'arpege sont enregistrees une a une.",
-        "status": "tested",
-        "credit": None,
-        "variants": [
-            {"file": "40-arp", "label": None},
-        ],
-    },
-    {
-        "id": "tempo-max",
-        "label": "Tempo jusqu'a 546 BPM",
-        "desc": "Le tempo monte jusqu'a 546 BPM au lieu de 300 (molette, tap tempo, horloge MIDI recue). "
-                "546 est le plafond du format des projets.",
-        "status": "tested",
-        "credit": None,
-        "variants": [
-            {"file": "42-tempo-max", "label": None},
-        ],
-    },
-    {
-        "id": "boot-anim",
-        "label": "Animation de demarrage modded-cycles",
-        "desc": "Au demarrage, les quatre carres du logo apparaissent un par un puis modded-cycles s'ecrit "
-                "dessous, a la place des carreaux qui clignotent. Meme duree qu'a l'origine.",
-        "status": "tested",
-        "credit": None,
-        "variants": [
-            {"file": "43-boot-anim", "label": None},
-        ],
-    },
-    {
-        "id": "chord-keys",
-        "label": "Chord Keys",
-        "desc": "TRIG 1–16 jouent les degrés. COLOR choisit DIATONIC, JAZZ ou TENSION ; SHAPE dispose "
-                "et équilibre les voix. T1–T6 transforment toujours l'accord en HARMONY lorsque Keys est actif. "
-                "Le pad tenu reste actif entre les TRIG ; MIDI CHORD envoie les notes de l’accord. "
-                "L’écran affiche l’accord tenu ; les changements HARMONY s’enregistrent en P-locks.",
-        "status": "experimental",
-        "credit": {"kind": "by", "who": "Modded Cycles", "repo": "18nelli18/Modded-Cycles"},
-        "variants": [{"file": "44-chord-keys", "label": None}],
-    },
-    {
-        "id": "syntakt",
-        "label": "Vrais moteurs du Syntakt",
-        "desc": "Les moteurs du Syntakt, extraits de TON fichier Syntakt_OS1.42.syx (a deposer a l'etape 2), "
-                "en machines supplementaires apres les 6 d'origine : coche ceux que tu veux. "
-                "Identiques au Syntakt en emulation.",
-        "status": "tested",
-        "credit": None,
-        "needs": "syntakt",
-        "engines": True,
-    },
-]
+# Sections of the feature list on the page (docs/flasher/app.js CATS has the same list, plus "other").
+CATS = ("sound", "seq", "live", "screen", "io")
+
+# Licenses of third-party code the page embeds outside the features: builder.js is a port of mtlib (drumkilla),
+# itself based on elektron-firmware-tool (Marcel Bierling). See THIRD-PARTY-NOTICES.md.
+PAGE_LICENSES = {
+    "LICENSE-elektron-model-tweaks": DEV_DIR / "LICENSE-elektron-model-tweaks",
+    "LICENSE-elektron-firmware-tool": ROOT / "tools" / "mtlib" / "LICENSE-elektron-firmware-tool",
+}
+
+SHARED_MIN = 2048      # shared values: strings or lists of at least 2 KB in compact JSON
 
 
-def engine_feature(f, load):
-    """Carte des vrais moteurs du Syntakt : les moteurs du catalogue et le tweak de chaque combinaison."""
-    import gen_syntakt_engines as gs
-    engines = [{"code": c, "name": m["name"], "label": m["label"]} for c, m in gs.CATALOG.items()]
-    combos = []
-    for codes in gs.subsets():
-        t = load(gs.subset_id(codes))
-        combos.append({"id": t["id"], "engines": codes, "tested": tuple(codes) in gs.HW_TESTED,
-                       "label": ", ".join(gs.CATALOG[c]["name"] for c in codes),
-                       "tg": load(gs.tweak_id(codes, tg=True))["id"],      # avec Model-TG (notes/31)
-                       "tg_tested": tuple(codes) in gs.HW_TESTED_TG})
-    return engines, combos
+def load_os():
+    return json.loads(OS_JSON.read_text(encoding="utf-8"))
+
+
+def load_tweaks():
+    """{id: tweak} for every tweak JSON of the device folder."""
+    by_id = {}
+    for p in sorted(DEV_DIR.glob("*.json")):
+        if p.name == "device.json":
+            continue
+        t = json.loads(p.read_text(encoding="utf-8"))
+        if t["id"] in by_id:
+            sys.exit(f"!! tweaks/: two files carry the id {t['id']!r}")
+        by_id[t["id"]] = t
+    return by_id
+
+
+def check_os(os_def, by_id):
+    """The OS is buildable: every tweak exists, no declared conflict, every requires satisfied (tools/build.py rules);
+    the features cover exactly the tweaks of the OS; categories, statuses and licenses are valid."""
+    ids = os_def["tweaks"]
+    if len(set(ids)) != len(ids):
+        sys.exit("!! os.json: a tweak is listed twice")
+    for tid in ids:
+        if tid not in by_id:
+            sys.exit(f"!! os.json: unknown tweak {tid!r} (no tweaks/model-cycles_OS1.13/*.json with this id)")
+    chosen = {tid: by_id[tid] for tid in ids}
+    for t in chosen.values():
+        for c in t.get("conflicts") or []:
+            if c in chosen:
+                sys.exit(f"!! os.json: {t['id']} conflicts with {c}: they cannot be in the same firmware")
+        for r in t.get("requires") or []:
+            if r not in chosen:
+                sys.exit(f"!! os.json: {t['id']} requires {r}, which is not in the OS")
+    owned = collections.Counter()
+    for f in os_def["features"]:
+        if f.get("cat") not in CATS:
+            sys.exit(f"!! os.json: feature {f['id']} has cat {f.get('cat')!r}, expected one of {', '.join(CATS)}")
+        if f.get("status") not in ("tested", "experimental"):
+            sys.exit(f"!! os.json: feature {f['id']} has status {f.get('status')!r}")
+        for tid in f.get("tweaks") or []:
+            if tid not in chosen:
+                sys.exit(f"!! os.json: feature {f['id']} names {tid}, which is not a tweak of the OS")
+            owned[tid] += 1
+        if f.get("license") and not (DEV_DIR / f["license"]).exists():
+            sys.exit(f"!! os.json: feature {f['id']}: license file {f['license']} missing in tweaks/model-cycles_OS1.13/")
+    if os_def.get("status") not in ("tested", "experimental"):
+        sys.exit(f"!! os.json: status {os_def.get('status')!r}")
+    unowned = [tid for tid in ids if not owned[tid]]
+    if unowned:
+        sys.exit(f"!! os.json: no feature names the tweak(s) {', '.join(unowned)}")
+    return [chosen[tid] for tid in ids]
+
+
+def share(tweaks):
+    """Values repeated from one tweak to another are stored once in "shared" and replaced by {"$shared": k}.
+    tweaks.js puts them back at load time (HYDRATE), read_js() does the same in Python."""
+    def key(v):
+        return json.dumps(v, ensure_ascii=False, separators=(",", ":"))
+    count = collections.Counter()
+
+    def walk(v):
+        if isinstance(v, (str, list)) and len(k := key(v)) >= SHARED_MIN:
+            count[k] += 1
+        for x in v if isinstance(v, list) else v.values() if isinstance(v, dict) else ():
+            walk(x)
+    for t in tweaks:
+        walk(t)
+    shared, index = [], {}
+
+    def sub(v):
+        if isinstance(v, (str, list)) and count[k := key(v)] > 1:
+            if k not in index:
+                index[k] = len(shared)
+                shared.append(v)
+            return {"$shared": index[k]}
+        if isinstance(v, list):
+            return [sub(x) for x in v]
+        if isinstance(v, dict):
+            return {a: sub(x) for a, x in v.items()}
+        return v
+    return [sub(t) for t in tweaks], shared
+
+
+# Puts the shared values back (share); a shared list is copied for each tweak, a string is not.
+HYDRATE = (
+    "(function (tw) {\n"
+    "  const s = tw.shared || [];\n"
+    "  delete tw.shared;\n"
+    "  const h = (v) => Array.isArray(v) ? v.map(h) : v && typeof v === \"object\"\n"
+    "    ? (\"$shared\" in v ? (Array.isArray(s[v.$shared]) ? JSON.parse(JSON.stringify(s[v.$shared])) : s[v.$shared])\n"
+    "      : Object.fromEntries(Object.entries(v).map(([k, x]) => [k, h(x)]))) : v;\n"
+    "  tw.tweaks = tw.tweaks.map(h);\n"
+    "})(window.MC_TWEAKS);\n"
+)
+
+
+def read_js(text):
+    """Content of tweaks.js (window.MC_TWEAKS), shared values put back as in the page."""
+    start = text.index("window.MC_TWEAKS = ") + len("window.MC_TWEAKS = ")
+    tw = json.JSONDecoder().raw_decode(text, start)[0]
+    s = tw.pop("shared", [])
+
+    def h(v):
+        if isinstance(v, list):
+            return [h(x) for x in v]
+        if isinstance(v, dict):
+            return copy.deepcopy(s[v["$shared"]]) if "$shared" in v else {k: h(x) for k, x in v.items()}
+        return v
+    tw["tweaks"] = [h(t) for t in tw["tweaks"]]
+    return tw
 
 
 def render():
-    from crossflash import OFFICIAL            # empreintes des OS officiels, source unique (tools/crossflash.py)
+    from crossflash import OFFICIAL            # hashes of the official OS files, single source (tools/crossflash.py)
     device = json.loads((DEV_DIR / "device.json").read_text(encoding="utf-8"))
-    tweaks, seen, features = [], {}, []
-    by_id = {}
-    for p in sorted(DEV_DIR.glob("*.json")):
-        if p.name != "device.json":
-            t = json.loads(p.read_text(encoding="utf-8"))
-            by_id[t["id"]] = t
-
-    def load(tid):
-        t = by_id[tid]
-        if tid not in seen:
-            seen[tid] = True
-            tweaks.append(t)
-        return t
-    for f in FEATURES:
-        feat = {"id": f["id"], "label": f["label"], "desc": f["desc"], "status": f["status"], "credit": f["credit"]}
-        if f.get("hardware_scope"):
-            feat["hardware_scope"] = f["hardware_scope"]
-        if f.get("engines"):
-            feat["engines"], feat["combos"] = engine_feature(f, load)
-            feat["status"] = "tested" if any(c["tested"] or c["tg_tested"] for c in feat["combos"]) else "experimental"
-        else:
-            by_file = {json.loads((DEV_DIR / f"{v['file']}.json").read_text(encoding="utf-8"))["id"]: v for v in f["variants"]}
-            feat["variants"] = [{"id": load(tid)["id"], "label": v["label"]} for tid, v in by_file.items()]
+    os_def = load_os()
+    by_id = load_tweaks()
+    tweaks = check_os(os_def, by_id)
+    features = []
+    for f in os_def["features"]:
+        feat = {"id": f["id"], "cat": f["cat"], "status": f["status"], "credit": f.get("credit"),
+                "tweaks": list(f.get("tweaks") or [])}
         if f.get("needs"):
             feat["needs"] = f["needs"]
-        if f.get("excludes"):
-            feat["excludes"] = f["excludes"]
-        if f.get("includes"):
-            feat["includes"] = f["includes"]
-        if f.get("with"):                       # autre tweak quand une autre carte est cochee aussi
-            feat["with"] = {g: load(json.loads((DEV_DIR / f"{v}.json").read_text(encoding="utf-8"))["id"])["id"]
-                            for g, v in f["with"].items()}
-        if f.get("license"):                    # texte de la licence, servi a cote de la page (licenses())
+        if f.get("license"):                    # license text served next to the page (licenses())
             feat["license"] = f["license"] + ".txt"
+        if f.get("guide"):
+            feat["guide"] = f["guide"]
         features.append(feat)
+    shared_tweaks, shared = share(tweaks)
     payload = {
         "device": {k: device[k] for k in ("device", "os", "section_sha256", "stock_syx_sha256", "cave_refs_ok")
                    if k in device},
-        "tweaks": tweaks,
+        "os": {
+            "name": os_def["name"], "version": os_def["version"], "status": os_def["status"],
+            "key": "+".join(os_def["tweaks"]),          # the REF_MAINOS key (docs/flasher/app.js, tools/ref_mainos.py)
+            "tweaks": list(os_def["tweaks"]),
+            "machines": os_def.get("machines", []),
+            "needs": os_def.get("needs", ["cycles"]),
+        },
+        "tweaks": shared_tweaks,
         "features": features,
-        # onglet « OS Samples » : l'OS Model:Samples officiel, mis dans le conteneur du Cycles (crossflash)
+        # "Samples OS" tab: the official Model:Samples OS, put in the Cycles container (crossflash)
         "samples": {"syx_sha256": OFFICIAL["samples"]["syx"], "main_sha256": OFFICIAL["samples"]["main"],
                     "download": "https://www.elektron.se/support-downloads/modelsamples"},
-        # fonctionnalités « needs: syntakt » : le fichier officiel Syntakt_OS1.42.syx de l'utilisateur
+        # the Syntakt engines are read from the user's official Syntakt_OS1.42.syx (or 1.41)
         "syntakt": {"download": "https://www.elektron.se/support-downloads/syntakt"},
+        "shared": shared,
     }
     body = json.dumps(payload, ensure_ascii=False, indent=1)
-    return (
-        "/* Genere par tools/gen_flasher_tweaks.py depuis tweaks/model-cycles_OS1.13/.\n"
-        " * NE PAS editer a la main : relance le script apres avoir change un tweak. */\n"
-        "window.MC_TWEAKS = " + body + ";\n"
+    text = (
+        "/* Generated by tools/gen_flasher_tweaks.py from os.json and tweaks/model-cycles_OS1.13/.\n"
+        " * DO NOT edit by hand: rerun the script after changing os.json or a tweak. */\n"
+        "window.MC_TWEAKS = " + body + ";\n" + HYDRATE
     )
+    if read_js(text)["tweaks"] != tweaks:
+        sys.exit("!! shared values: tweaks.js does not give back the tweaks of tweaks/")
+    return text
 
 
 def licenses():
-    """Licences a publier avec la page (code tiers embarque dans tweaks.js) : {fichier servi : texte}."""
-    return {OUT.parent / (f["license"] + ".txt"): (DEV_DIR / f["license"]).read_text(encoding="utf-8")
-            for f in FEATURES if f.get("license")}
+    """License texts published with the page (third-party code embedded in tweaks.js and builder.js): {file: text}."""
+    os_def = load_os()
+    out = {OUT.parent / (f["license"] + ".txt"): (DEV_DIR / f["license"]).read_text(encoding="utf-8")
+           for f in os_def["features"] if f.get("license")}
+    out.update({OUT.parent / (name + ".txt"): src.read_text(encoding="utf-8") for name, src in PAGE_LICENSES.items()})
+    return out
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--check", action="store_true", help="verifie sans ecrire")
+    ap.add_argument("--check", action="store_true", help="check without writing")
     args = ap.parse_args()
     text = render()
     if args.check:
         stale = [p.name for p, t in licenses().items() if not p.exists() or p.read_text(encoding="utf-8") != t]
         if not OUT.exists() or OUT.read_text(encoding="utf-8") != text or stale:
-            sys.exit("!! docs/flasher/tweaks.js (ou une licence) n'est pas a jour : relance tools/gen_flasher_tweaks.py")
-        print("docs/flasher/tweaks.js est a jour")
+            sys.exit("!! docs/flasher/tweaks.js (or a license file) is out of date: run tools/gen_flasher_tweaks.py")
+        print("docs/flasher/tweaks.js is up to date")
         return
     for p, t in licenses().items():
         p.write_text(t, encoding="utf-8")
     OUT.write_text(text, encoding="utf-8")
-    print(f"ecrit : {OUT.relative_to(ROOT)} ({len(text)} o, {len(FEATURES)} fonctionnalites)")
+    os_def = load_os()
+    print(f"written: {OUT.relative_to(ROOT)} ({len(text)} bytes, {os_def['name']} {os_def['version']}: "
+          f"{len(os_def['tweaks'])} tweaks, {len(os_def['features'])} features)")
 
 
 if __name__ == "__main__":

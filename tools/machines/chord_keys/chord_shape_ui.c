@@ -1,4 +1,4 @@
-/* Affichage contextuel de SHAPE et COLOR dans CHORD Keys, OS 1.13 (notes/40).
+/* Affichage contextuel de SHAPE et COLOR dans CHORD Keys, OS 1.13 (notes/42).
  * Les descripteurs et leurs bornes restent stock. L'objet de paramètres
  * identifie sa propre piste : les réglages d'une autre piste ne doivent
  * jamais changer le nom ou la valeur affichés ici.

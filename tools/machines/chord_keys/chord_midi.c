@@ -1,4 +1,4 @@
-/* Sortie MIDI des accords, OS 1.13 (notes/40).
+/* Sortie MIDI des accords, OS 1.13 (notes/42).
  * Le jeu direct capture les notes, le canal et la destination de chaque attaque.
  * Le séquenceur conserve sa file native et ses durées : une entrée par voix.
  * Aucun calcul MIDI dans l'update DSP ; aucun état de pile partagé.
@@ -26,10 +26,20 @@ static const u8 scales[7][7] = {
 /* Même harmonie entière que le DSP ; PITCH/FINE restent propres à l'audio.
  * Les voix hors MIDI 0..127 sont omises, sans replier les notes valides.
  */
+static __attribute__((noinline)) u32 voice_midi_notes(u32 notes[4], u32 count, u32 note, unsigned short shape)
+{
+    u32 i, used = 0;
+    ck_voicing_apply(notes, count, ck_voicing_index((short)shape));
+    for (i = 0; i < count; ++i)
+        if (notes[i] + note < 128)
+            notes[used++] = notes[i] + note;
+    return used;
+}
+
 static __attribute__((noinline)) u32 midi_notes(u32 cfg, u32 note,
         const unsigned short *params, u32 modifier, u32 notes[4])
 {
-    u32 mode = (cfg >> 28) & 7u, degree, count, i, used = 0, relative;
+    u32 mode = (cfg >> 28) & 7u, degree, count, relative;
     if (!(cfg & 0x80000000u) || mode >= 7 || note > 127 || !params || params[9] != 5u << 8)
         return 0;
     if (note > 96)
@@ -43,11 +53,7 @@ static __attribute__((noinline)) u32 midi_notes(u32 cfg, u32 note,
     if (!count)
         count = ck_harmony_intervals(mode, degree, (cfg >> (3 * degree)) & 7u,
                  ck_palette_index((short)params[11]), 0, notes);
-    ck_voicing_apply(notes, count, ck_voicing_index((short)params[12]));
-    for (i = 0; i < count; ++i)
-        if (notes[i] + note < 128)
-            notes[used++] = notes[i] + note;
-    return used;
+    return voice_midi_notes(notes, count, note, params[12]);
 }
 
 static void send(u32 channel, u32 note, u32 velocity, u32 destination)

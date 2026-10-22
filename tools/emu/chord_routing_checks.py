@@ -1,4 +1,4 @@
-"""Régressions du routage Chord Keys (notes/40, review PR #46).
+"""Régressions du routage Chord Keys (notes/42, review PR #46).
 
 Les constructeurs PadEvent/KeyEvent, les deux dispatchers de l'OS, PadsView,
 KeyboardView et PatternAndBankSelectView sont exécutés. Le scanner stock et son

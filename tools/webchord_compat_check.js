@@ -16,12 +16,8 @@ const references = vm.runInNewContext(`(${match[1]})`);
 const raw = new Uint8Array(fs.readFileSync(process.argv[2]));
 const syntakt = new Uint8Array(fs.readFileSync(process.argv[3]));
 const original = B.parseContainer(B.unwrap(raw).stream);
-const cases = [
-  ["chord-keys"],
-  ["model-tg", "chord-keys"],
-  ["6ch-usbup", "latching-mute", "trig-preview", "browser-scroll", "trig-hold", "arp", "tempo-max", "boot-anim", "chord-keys", "syntakt-sd-cp-toy-bits-swarm"],
-  ["6ch-usbup", "model-tg-st", "trig-hold", "arp", "tempo-max", "boot-anim", "chord-keys", "syntakt-tg-sd-cp-toy-bits-swarm"],
-];
+const cases = [JSON.parse(read("os.json")).tweaks];
+
 for (const ids of cases) {
   const key = ids.join("+");
   assert(references[key], `Référence Python absente : ${key}`);

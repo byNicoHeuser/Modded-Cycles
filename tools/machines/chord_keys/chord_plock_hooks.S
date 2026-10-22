@@ -1,6 +1,8 @@
-/* P-lock HARMONY, OS 1.13, notes/40. Slot RAM28 / identifiant sérialisé33.
+/* P-lock HARMONY, OS 1.13, notes/42. Slot RAM27 / identifiant sérialisé33.
  * Sauvegarde complète : d4=slot*4, a5=table stock, a3=lane, d2=piste.
- * Rejoue les stores identifiant/piste ; aucun registre général modifié.
+ * Rejoue lea/suba/adda de 0x4005b9be, avant le crochet LFO+ en 0x4005b9c6.
+ * HARMONY écrit ID33 puis reprend en 0x4005b9ce ; les autres lanes passent
+ * dans le writer installé (stock ou LFO+). Aucun registre supplémentaire modifié.
  * Sauvegarde partielle : d3=slot ; a4 reçoit l'identifiant, d0=-1 comme stock.
  * Décodage : prologue original pour tous les identifiants existants et FX.
  * Note : d3=objet piste, d4=piste, d2=pas. Sauvegarde les volatils, appelle
@@ -11,13 +13,15 @@
     .balign 2
     .global ck_plock_save_hook
 ck_plock_save_hook:
+    lea %a2@(0,%d1:l:2),%a3
+    suba.l %a2,%a2
+    adda.l %a1,%a3
     cmpi.l #(CK_HARMONY_SLOT*4),%d4
     bne.s 1f
     move.b #CK_HARMONY_ID,%a3@
-    bra.s 2f
-1:  move.b %a5@(3,%d4:l),%a3@
-2:  move.b %d2,%a3@(1)
+    move.b %d2,%a3@(1)
     jmp 0x4005b9ce
+1:  jmp 0x4005b9c6
 
     .section .text.ck_plock_partial_hook,"ax"
     .balign 2

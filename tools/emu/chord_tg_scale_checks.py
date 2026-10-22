@@ -1,4 +1,4 @@
-"""Coexistence Chord Keys / Scale Lock sur le code final Model-TG (notes/40).
+"""Coexistence Chord Keys / Scale Lock sur le code final Model-TG (notes/42).
 
 Les entrées note-on/off, les deux détours TG et leur snap_note sont exécutés.
 Les files audio et recorder sont observées APRÈS leur construction native ;

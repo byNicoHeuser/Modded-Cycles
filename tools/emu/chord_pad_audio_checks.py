@@ -1,4 +1,4 @@
-"""Lien séquentiel des vrais gestes UI au vrai DSP CHORD (notes/40).
+"""Lien séquentiel des vrais gestes UI au vrai DSP CHORD (notes/42).
 
 Le banc UI exécute PadEvent, le routage et les setters persistants. Ses captures
 physiques, ses transformations, les captures TRIG et son en-tête passent dans un second banc

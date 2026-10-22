@@ -1,4 +1,4 @@
-"""Preuves des P-locks HARMONY via les routines natives OS 1.13 (notes/40).
+"""Preuves des P-locks HARMONY via les routines natives OS 1.13 (notes/42).
 
 Le banc contrôle seulement sélection UI, horloge et observateurs. Les buffers,
 setters de trigs/locks, copier, sauvegarde complète/partielle et chargeur sont
@@ -12,8 +12,8 @@ from unicorn import m68k_const as mk
 from probe_chord_storage import Rig, BASE, B1, B2, SERIAL, PROJECT, require
 
 UI, CLOCK = 0x92040000, 0x92041000
-PLOCK_HOOKS = ((0x4005B9C6, 8), (0x4005BAD2, 6), (0x4005AA1A, 8), (0x40012274, 6), (0x4005B816, 2))
-SLOT = 28
+PLOCK_HOOKS = ((0x4005B9BE, 8), (0x4005BAD2, 6), (0x4005AA1A, 8), (0x40012274, 6), (0x4005B816, 2))
+SLOT = 27
 
 
 class PlockRig(Rig):
@@ -269,7 +269,7 @@ def run_plock_checks(stock, patched, symbols):
         actual = rig.call(0x4005AA1A, track, slot)
         require(actual == (SLOT if track < 6 and slot == 33 else value),
                 f"Décodage modifié hors HARMONY : {track}/{slot}")
-    print("ok P-lock : mapping natif conservé, seule extension ID33 → slot28, bornes audio/FX", flush=True)
+    print("ok P-lock : mapping natif conservé, seule extension ID33 → slot27, bornes audio/FX", flush=True)
     rig.bind(B2)
     empty_locks = rig.bytes(B2 + 4332, 26310)
     scratch = SERIAL + 16000
@@ -281,7 +281,7 @@ def run_plock_checks(stock, patched, symbols):
                 "Le chargeur accepte une nouvelle lane sur FX/piste ou ID invalide")
     # Une lane ID33 existante ne contient pas son ancien numéro de slot RAM.
     # Construire ces octets indépendamment du nouveau writer prouve que les
-    # prises de la version slot23 migrent vers 28 sans atteindre Attack.
+    # prises de la version slot23 migrent vers 27 sans atteindre Attack.
     rig.uc.mem_write(scratch, b"\xff" * 10400)
     for track in range(6):
         lane = scratch + 130 * track
@@ -294,9 +294,9 @@ def run_plock_checks(stock, patched, symbols):
                 for step, modifier in ((0, 0), (7, track + 1), (63, 6 - track))),
             "Une ancienne lane ID33 perd ses valeurs dans le nouveau slot")
     require(all(rig.get(track, step, slot) == -1
-                for track in range(6) for step in range(64) for slot in range(23, 28)),
+                for track in range(6) for step in range(64) for slot in range(23, 33) if slot != SLOT),
             "La migration ID33 écrase un paramètre de Model-TG")
-    print("ok P-lock : anciennes lanes ID33 chargées au slot28, réserves Model-TG23..27 intactes", flush=True)
+    print("ok P-lock : anciennes lanes ID33 chargées au slot27, réserves Model-TG/LFO2 intactes", flush=True)
     rig.bind(B1)
 
     for track in range(6):

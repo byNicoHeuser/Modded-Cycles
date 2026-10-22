@@ -1,4 +1,4 @@
-"""Preuves COLOR/PALETTE sur le vrai formatter et le dessin OS (notes/40).
+"""Preuves COLOR/PALETTE sur le vrai formatter et le dessin OS (notes/42).
 
 Appelé par test_chord_keys.py. Les objets de piste et allocations sont simulés,
 mais sprintf, std::string, les métriques et les pixels de police sont exécutés.

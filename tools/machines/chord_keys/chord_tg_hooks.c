@@ -1,4 +1,4 @@
-/* Coexistence avec le Scale Lock Model-TG (notes/40).
+/* Coexistence avec le Scale Lock Model-TG (notes/42).
  * Les notes CHORD Keys sont déjà des hauteurs chromatiques : ne pas les
  * interpréter une seconde fois comme des indices de degré. Les autres pistes
  * et Keys OFF conservent le détour Model-TG installé dans le firmware.

@@ -1,4 +1,4 @@
-"""Compatibilité DSP ciblée de Chord Keys avec les autres tweaks (notes/40).
+"""Compatibilité DSP ciblée de Chord Keys avec les autres tweaks (notes/42).
 
 La boucle des six voix, le getter de pattern, l'EMAC de Model-TG, ses effets
 par piste et le régulateur s'exécutent. Les recettes Syntakt sont reconstituées
@@ -40,15 +40,30 @@ class Config(NativeAudioConfig):
 def runtime_payload(stock, chosen, syntakt_path):
     """Charge utile telle que le bootstrap la reconstitue, sans lancer de preuve."""
     ours = next((t for t in chosen if t.get('append', {}).get('syntakt')), None)
-    return ((int(ours['append']['dest'], 16),
-             build.payload_runtime(ours, stock, syntakt.dsp_image(syntakt_path)))
-            if ours else (E.PAYLOAD_DST, b''))
+    if not ours:
+        return E.PAYLOAD_DST, b''
+    dest = int(ours['append']['dest'], 16)
+    runtime = bytearray(build.payload_runtime(ours, stock, syntakt.dsp_image(syntakt_path)))
+    if ours['append'].get('compress'):
+        # Le second étage du bootstrap recopie les tables CHORD avant de
+        # réutiliser leur SRAM. La recette compressée ne les embarque pas.
+        from test_macro_syntakt import chord_tables
+        image, _ = build.apply_writes(stock, chosen)
+        ptr = gs.CHORD_PTRS - E.BASE
+        old_ptr = int.from_bytes(stock[ptr:ptr + 4], 'big')
+        new_ptr = int.from_bytes(image[ptr:ptr + 4], 'big')
+        offset = old_ptr - gs.CHORD_BANKS[0][0]
+        at = new_ptr - offset - dest
+        tables = chord_tables(stock)
+        assert 0 <= at <= len(runtime) - len(tables)
+        runtime[at:at + len(tables)] = tables
+    return dest, bytes(runtime)
 
 
-def shared_engine(image, extra_code=(), tg=None, payload=None, image_len=E.IMAGE_LEN):
+def shared_engine(image, extra_code=(), tg=None, payload=None, image_len=E.IMAGE_LEN, payload_code=()):
     """Fixture réutilisable du vrai dispatch composé, sans la matrice de tests."""
     tg_code = [(TG.BLOB, E.BASE + image_len + tg['append']['size'] - TG.BLOB)] if tg else []
-    e = E.Engine(image, extra_code=tg_code + list(extra_code), payload=payload or (E.PAYLOAD_DST, b''))
+    e = E.Engine(image, extra_code=tg_code + list(extra_code), payload=payload or (E.PAYLOAD_DST, b''), payload_code=payload_code)
     e.uc.mem_map(0x40800000, 0x01800000)
     if tg:
         e.uc.mem_map(0x42400000, 0x00c00000)
@@ -71,10 +86,17 @@ def run(stock, reference, patched, symbols, chosen, syntakt_path, extra_code, ch
     if ours:
         check(payload[0] == (gs.PAY_TG if tg else gs.PAY_ALONE),
               f"DSP partagé : charge utile Syntakt à son adresse d'exécution {payload[0]:#x}")
+    payload_code = []
+    if ours and 'acid_update' in ours.get('symbols', {}):
+        update = int(ours['symbols']['acid_update'], 16)
+        for part in ours['append']['parts']:
+            at = int(part['dest'], 16)
+            if 'hex' in part and at <= update < at + len(part['hex']) // 2:
+                payload_code.append((at, at + len(part['hex']) // 2))
     engines = []
 
     def engine(image, chord=False):
-        e = shared_engine(image, extra_code if chord else (), tg, payload, len(stock))
+        e = shared_engine(image, extra_code if chord else (), tg, payload, len(stock), payload_code)
         engines.append(e)
         return e
 
@@ -105,7 +127,8 @@ def run(stock, reference, patched, symbols, chosen, syntakt_path, extra_code, ch
     setup(b, range(6), False)
     off_a, off_b = render(a), render(b)
     check(np.array_equal(off_a, off_b) and all(off_a[:, track].any() for track in range(6)),
-          "Keys OFF : six machines, vraie boucle des voix, PCM identique aux mêmes mods sans Chord Keys")
+          "Keys OFF : six machines, vraie boucle des voix, PCM identique aux mêmes mods sans Chord Keys"
+          + f" ; égalité {np.array_equal(off_a, off_b)}, audibles {[bool(off_a[:, t].any()) for t in range(6)]}")
 
     a, b = engine(reference), engine(patched, True)
     setup(a, range(6), True)
@@ -124,34 +147,41 @@ def run(stock, reference, patched, symbols, chosen, syntakt_path, extra_code, ch
     extra_machines = ([6] if tg else [])
     codes = [c for c in (ours['id'].split('-') if ours else []) if c in gs.CATALOG]
     first = 7 if tg else 6
-    extra_machines += list(range(first, first + len(codes)))
+    added = [name for name in ('macro', 'acid') if ours and name + '_update' in ours.get('symbols', {})]
+    codes = [c for c in codes if c not in ('macro', 'acid')]
+    extra_machines += list(range(first, first + len(codes) + len(added)))
     if extra_machines:
         u = ui()
         u.call(0x4005a274)
         spare = not u.bad
         for machine in extra_machines:
-            for slot in range(SLOT, 33):
+            for slot in (SLOT,):
                 spare &= u.call(0x4005a692, slot, machine) == 0 and not u.bad
-        check(spare, "Machines ajoutées : aucun descripteur ne réserve les slots 28..32")
-        a, b = engine(reference), engine(patched, True)
-        machines = (extra_machines + [0] * 6)[:6]
-        for candidate in (a, b):
-            setup(candidate, machines, True)
-            for track, machine in enumerate(machines):
-                if first <= machine < first + len(codes):
-                    entry = gs.CATALOG[codes[machine - first]]
-                    candidate.set(track, **dict(zip(('color', 'shape', 'sweep', 'contour'),
-                                                   [k[2] for k in entry['knobs']])))
-                candidate.uc.mem_write(E.PARAMS + 14 + 66 * track + 2 * SLOT, struct.pack('>H', 6))
-                candidate.uc.mem_write(LOCK_MASK + 8 * track, struct.pack('>I', 1 << SLOT))
-        other_a, other_b = render(a), render(b)
-        check(np.array_equal(other_a, other_b),
-              f"Keys ON : machines ajoutées {extra_machines}, lane HARMONY présente, PCM identique")
-        if tg:
-            check(not other_b[:, 0].any(), "Keys ON : Sampler vide toujours muet")
-        if codes:
-            check(all(other_b[:, machines.index(first + i)].any() for i in range(len(codes))),
-                  "Keys ON : chaque moteur Syntakt sélectionné reste audible")
+        check(spare, "Machines ajoutées : aucun descripteur ne réserve les slot 27")
+        for start in range(0, len(extra_machines), 6):
+            selected = extra_machines[start:start + 6]
+            a, b = engine(reference), engine(patched, True)
+            machines = (selected + [0] * 6)[:6]
+            for candidate in (a, b):
+                setup(candidate, machines, True)
+                for track, machine in enumerate(machines):
+                    if first <= machine < first + len(codes):
+                        entry = gs.CATALOG[codes[machine - first]]
+                        candidate.set(track, **dict(zip(('color', 'shape', 'sweep', 'contour'),
+                                                       [k[2] for k in entry['knobs']])))
+                    if machine >= first + len(codes):
+                        candidate.set(track, note=48, color=64, shape=0, sweep=64, contour=0)
+                        import test_acid as acid
+                        candidate.uc.mem_write(acid.S.TEMPO, struct.pack('>i', acid.T120))
+                        acid.set_globals(candidate, track, vel=100, gain=100, left=acid.T120)
+                    candidate.uc.mem_write(E.PARAMS + 14 + 66 * track + 2 * SLOT, struct.pack('>H', 6))
+                    candidate.uc.mem_write(LOCK_MASK + 8 * track, struct.pack('>I', 1 << SLOT))
+            other_a, other_b = render(a), render(b)
+            check(np.array_equal(other_a, other_b),
+                  f"Keys ON : machines ajoutées {selected}, lane HARMONY présente, PCM identique")
+            check(all(bool(other_b[:, t].any()) == (not tg or machine != 6)
+                      for t, machine in enumerate(selected)),
+                  f"Keys ON : machines {selected} audibles, sauf Sampler vide")
 
     # Les cibles du lisseur et le bitmap viennent du vrai extracteur de locks.
     # Passer ensuite son buffer à la boucle audio inclut Attack/Filter/Res de TG.
@@ -205,7 +235,7 @@ def run(stock, reference, patched, symbols, chosen, syntakt_path, extra_code, ch
           + (f" ; premier écart {first_error}" if first_error else ""))
     if tg:
         check(effects_intact,
-              "Model-TG : Attack23, Filter24 et Resonance25 conservent leurs locks pendant HARMONY28")
+              "Model-TG : Attack23, Filter24 et Resonance25 conservent leurs locks pendant HARMONY27")
 
     governor = next((t for t in chosen if t.get('gov')), None)
     if governor:

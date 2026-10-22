@@ -1,4 +1,4 @@
-"""Prise TRIG→T puis relecture dans la vraie file audio OS (notes/40 §21).
+"""Prise TRIG→T puis relecture dans la vraie file audio OS (notes/42 §21).
 
 Le banc choisit le pas quantifié et transfère l'état UI entre deux émulateurs.
 Recorder, sauvegarde, file audio, arbitrage, locks et DSP restent natifs.
