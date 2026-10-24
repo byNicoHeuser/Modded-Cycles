@@ -17,7 +17,7 @@ window.MC_TWEAKS = {
  },
  "os": {
   "name": "Modded Cycles OS",
-  "version": "2.1",
+  "version": "2.0",
   "status": "experimental",
   "key": "model-tg-st+sample-preview-st+trig-hold+arp+step-rec+chord-keys+tempo-max+boot-anim+multiline-browser+level-pan-values+trigless-dim+midi-live-both+mod-settings+lfo-plus+syntakt-tg-sd-cp-toy-bits-swarm-macro-acid",
   "tweaks": [

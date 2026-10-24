@@ -1,6 +1,6 @@
 # Modded Cycles OS: feature inventory
 
-Fork release **2.1** integrates Chord Keys with upstream **Modded Cycles OS 2.0**, the latest upstream release as of
+**Chord Keys 2.1** integrates with upstream **Modded Cycles OS 2.0**, the latest upstream release as of
 22 October 2026. The combined firmware remains experimental and awaits hardware testing.
 
 This file is a complete overview of what Modded Cycles adds to or changes in the Elektron Model:Cycles OS 1.13. For
@@ -1133,7 +1133,7 @@ on 10/10/2026.
 
 ### 7.5 Chord Keys (restored in this fork)
 
-Included in **2.1**, experimental. On a CHORD track, enable **Keys** in **FUNC + RETRIG**, select Root/Scale
+**Chord Keys 2.1**, experimental. On a CHORD track, enable **Keys** in **FUNC + RETRIG**, select Root/Scale
 and the extensions for I–VII. **TRIG 1–16** play the degrees; **T1–T6** apply HARMONY without selecting another track.
 COLOR selects the palette and SHAPE the voicing. **MIDI CHORD** sends the voiced notes; ROOT sends the usual root.
 HARMONY records in live/grid P-locks and old saved patterns retain their meaning alongside LFO 2 locks.
@@ -1196,4 +1196,4 @@ Separate flashing paths, not mods of the Cycles OS:
 16. **Optimised OS status**: notes/70 lives on `claude/os-optimise`; its flasher status and the exact list of what it
     conflicts with in Model-TG were not checked in this branch.
 
-**Step record in 2.1:** experimental integration. Its note writer now also captures HARMONY; the upstream hardware result applies to the unmodified OS 2.0 version.
+**Step record with Chord Keys 2.1:** experimental integration. Its note writer now also captures HARMONY; the upstream hardware result applies to the unmodified OS 2.0 version.
